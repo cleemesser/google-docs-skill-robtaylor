@@ -10,19 +10,19 @@ Translate the two Ruby scripts (`scripts/docs_manager.rb`, `scripts/drive_manage
 
 ## Summary of decisions
 
-| Axis | Decision |
-|------|----------|
+| Axis             | Decision |
+|------            |----------|
 | Ruby coexistence | **Replace.** Delete Ruby; Python on `python` branch. Major version bump 1.2.0 → 2.0.0. |
-| Python runner | **`uv`.** Required on user's machine. |
+| Python runner    | **`uv`.** Required on user's machine. |
 | Dependency management | **`pyproject.toml` + `uv sync`.** Single source of truth for deps. |
-| CLI contract | **Preserved.** Same command names, JSON fields, output shapes, exit codes. |
-| Internal layout | **Small package** under `scripts/gdocs_skill/`, thin entry scripts in `scripts/`. |
-| Python version | **3.11+** (for `match` statements and `X | None` typing). |
-| Tests | **pytest for markdown parser only** (~12 cases). No CLI/client mocking tests. |
-| Auth library | **`google-auth` + `google-auth-oauthlib` + `google-api-python-client`** (direct analogues of the Ruby gems). |
-| Token format | **Native Python format** (`Credentials.to_json()`), not Ruby-compatible. |
-| Token path | **`~/.claude/.google/token_python_<account>.json`** (separate from any Ruby skill's `token.json`). |
-| Multi-account | **Supported** via `--account <name>` CLI flag, `"account"` JSON field, or `GDOCS_ACCOUNT` env var. |
+| CLI contract     | **Preserved.** Same command names, JSON fields, output shapes, exit codes. |
+| Internal layout  | **Small package** under `scripts/gdocs_skill/`, thin entry scripts in `scripts/`. |
+| Python version   | **3.11+** (for `match` statements and `X | None` typing). |
+| Tests            | **pytest for markdown parser only** (~12 cases). No CLI/client mocking tests. |
+| Auth library     | **`google-auth` + `google-auth-oauthlib` + `google-api-python-client`** (direct analogues of the Ruby gems)|
+| Token format     | **Native Python format** (`Credentials.to_json()`), not Ruby-compatible. |
+| Token path       | **`~/.claude/.google/token_python_<account>.json`** (separate from any Ruby skill's `token.json`). |
+| Multi-account    | **Supported** via `--account <name>` CLI flag, `"account"` JSON field, or `GDOCS_ACCOUNT` env var. |
 
 ## Repository layout after the port
 
