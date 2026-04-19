@@ -262,12 +262,15 @@ def build_format_request(fmt: Format) -> dict:
             "updateTextStyle": {
                 "range": rng,
                 "textStyle": {
-                    "fontFamily": "Courier New",
+                    # weightedFontFamily is the correct TextStyle field --
+                    # `fontFamily` is not a direct member. Ruby port had this
+                    # wrong; API returns 400 "Unknown name fontFamily" if used.
+                    "weightedFontFamily": {"fontFamily": "Courier New"},
                     "backgroundColor": {
                         "color": {"rgbColor": {"red": 0.95, "green": 0.95, "blue": 0.95}}
                     },
                 },
-                "fields": "fontFamily,backgroundColor",
+                "fields": "weightedFontFamily,backgroundColor",
             }
         }
     raise ValueError(f"Unknown format kind: {fmt.kind}")
