@@ -141,12 +141,12 @@ All three Google skills use standardized exit codes:
 1. Verify file ID is correct (long alphanumeric string, not file name)
 2. Check file exists with search:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.py search \
+   ~/.claude/skills/google-drive/gsuite drive search \
      --query "name='Your File Name'"
    ```
 3. Verify you have access to the file:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.py list-permissions \
+   ~/.claude/skills/google-drive/gsuite drive list-permissions \
      --file-id "FILE_ID"
    ```
 4. If file is shared, ensure it's shared with your authenticated account
@@ -171,13 +171,13 @@ All three Google skills use standardized exit codes:
 **Solution Steps**:
 1. Check current permissions:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.py list-permissions \
+   ~/.claude/skills/google-drive/gsuite drive list-permissions \
      --file-id "FILE_ID"
    ```
 2. If you're not the owner, request permission from file owner
 3. If you are the owner but using different account, share to authenticated account:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.py share \
+   ~/.claude/skills/google-drive/gsuite drive share \
      --file-id "FILE_ID" \
      --email "your-authenticated-email@gmail.com" \
      --role "writer"
@@ -233,7 +233,7 @@ All three Google skills use standardized exit codes:
 **Solution Steps**:
 1. Read document to get current structure:
    ```bash
-   ~/.claude/skills/google-docs/scripts/docs_manager.py structure "DOCUMENT_ID"
+   ~/.claude/skills/google-docs/gsuite docs structure "DOCUMENT_ID"
    ```
 2. Use `append` operation instead of `insert` for adding to end
 3. Calculate correct indices based on content length

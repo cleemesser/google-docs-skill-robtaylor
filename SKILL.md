@@ -33,7 +33,7 @@ Manage Google Docs documents and Google Drive files with comprehensive operation
 - Move, copy, and delete files
 - Get file metadata
 
-**Integration**: The drive_manager.py script shares OAuth credentials with docs_manager.py
+**Integration**: The `gsuite drive` commands share OAuth credentials with `gsuite docs`
 
 **📚 Additional Resources**:
 - See `references/integration-patterns.md` for complete workflow examples
@@ -52,15 +52,15 @@ Use this skill when:
 - Keywords: "Google Doc", "document", "edit doc", "format text", "insert text"
 
 **📋 Discovering Your Documents**:
-To list or search for documents, use drive_manager.py:
+To list or search for documents, use the `gsuite drive` commands:
 ```bash
 # List recent documents
-scripts/drive_manager.py search \
+gsuite drive search \
   --query "mimeType='application/vnd.google-apps.document'" \
   --max-results 50
 
 # Search by name
-scripts/drive_manager.py search \
+gsuite drive search \
   --query "name contains 'Report' and mimeType='application/vnd.google-apps.document'"
 ```
 
@@ -70,12 +70,12 @@ scripts/drive_manager.py search \
 
 **Read full document content**:
 ```bash
-scripts/docs_manager.py read <document_id>
+gsuite docs read <document_id>
 ```
 
 **Get document structure (headings)**:
 ```bash
-scripts/docs_manager.py structure <document_id>
+gsuite docs structure <document_id>
 ```
 
 **Output**:
@@ -90,7 +90,7 @@ scripts/docs_manager.py structure <document_id>
 echo '{
   "title": "Project Proposal",
   "content": "Initial plain text content..."
-}' | scripts/docs_manager.py create
+}' | gsuite docs create
 ```
 
 **Create document from Markdown (RECOMMENDED)**:
@@ -98,7 +98,7 @@ echo '{
 echo '{
   "title": "Project Proposal",
   "markdown": "# Project Proposal\n\n## Overview\n\nThis is **bold** and *italic* text.\n\n- Bullet point 1\n- Bullet point 2\n\n| Column 1 | Column 2 |\n|----------|----------|\n| Data 1   | Data 2   |"
-}' | scripts/docs_manager.py create-from-markdown
+}' | gsuite docs create-from-markdown
 ```
 
 **Supported Markdown Features**:
@@ -114,7 +114,7 @@ echo '{
 
 **Document ID**:
 - Returned in response for future operations
-- Use with drive_manager.py for sharing/organizing
+- Use with `gsuite drive` for sharing/organizing
 
 ### 3. Insert and Append Text
 
@@ -124,7 +124,7 @@ echo '{
   "document_id": "abc123",
   "text": "This text will be inserted at the beginning.\n\n",
   "index": 1
-}' | scripts/docs_manager.py insert
+}' | gsuite docs insert
 ```
 
 **Insert formatted Markdown (RECOMMENDED)**:
@@ -133,7 +133,7 @@ echo '{
   "document_id": "abc123",
   "markdown": "## New Section\n\nThis has **bold** and *italic* formatting.\n\n- Item 1\n- Item 2",
   "index": 1
-}' | scripts/docs_manager.py insert-from-markdown
+}' | gsuite docs insert-from-markdown
 ```
 
 **Append text to end of document**:
@@ -141,7 +141,7 @@ echo '{
 echo '{
   "document_id": "abc123",
   "text": "\n\nThis text will be appended to the end."
-}' | scripts/docs_manager.py append
+}' | gsuite docs append
 ```
 
 **Index Positions**:
@@ -159,7 +159,7 @@ echo '{
   "document_id": "abc123",
   "find": "old text",
   "replace": "new text"
-}' | scripts/docs_manager.py replace
+}' | gsuite docs replace
 ```
 
 **Case-sensitive replacement**:
@@ -169,7 +169,7 @@ echo '{
   "find": "IMPORTANT",
   "replace": "CRITICAL",
   "match_case": true
-}' | scripts/docs_manager.py replace
+}' | gsuite docs replace
 ```
 
 **Replace all occurrences**:
@@ -186,7 +186,7 @@ echo '{
   "start_index": 1,
   "end_index": 20,
   "bold": true
-}' | scripts/docs_manager.py format
+}' | gsuite docs format
 ```
 
 **Multiple formatting options**:
@@ -198,7 +198,7 @@ echo '{
   "bold": true,
   "italic": true,
   "underline": true
-}' | scripts/docs_manager.py format
+}' | gsuite docs format
 ```
 
 **Formatting Options**:
@@ -214,7 +214,7 @@ echo '{
 echo '{
   "document_id": "abc123",
   "index": 500
-}' | scripts/docs_manager.py page-break
+}' | gsuite docs page-break
 ```
 
 **Use Cases**:
@@ -230,20 +230,20 @@ echo '{
   "document_id": "abc123",
   "start_index": 100,
   "end_index": 200
-}' | scripts/docs_manager.py delete
+}' | gsuite docs delete
 ```
 
 **Clear entire document**:
 ```bash
 # Read document first to get end index
-scripts/docs_manager.py read abc123
+gsuite docs read abc123
 
 # Then delete all content (start at 1, end at last index - 1)
 echo '{
   "document_id": "abc123",
   "start_index": 1,
   "end_index": 500
-}' | scripts/docs_manager.py delete
+}' | gsuite docs delete
 ```
 
 ### 8. Insert Images
@@ -253,7 +253,7 @@ echo '{
 echo '{
   "document_id": "abc123",
   "image_url": "https://storage.googleapis.com/bucket/image.png"
-}' | scripts/docs_manager.py insert-image
+}' | gsuite docs insert-image
 ```
 
 **Insert image with specific size**:
@@ -263,7 +263,7 @@ echo '{
   "image_url": "https://storage.googleapis.com/bucket/image.png",
   "width": 400,
   "height": 300
-}' | scripts/docs_manager.py insert-image
+}' | gsuite docs insert-image
 ```
 
 **Insert image at specific position**:
@@ -272,7 +272,7 @@ echo '{
   "document_id": "abc123",
   "image_url": "https://storage.googleapis.com/bucket/image.png",
   "index": 100
-}' | scripts/docs_manager.py insert-image
+}' | gsuite docs insert-image
 ```
 
 **Image URL Requirements**:
@@ -295,7 +295,7 @@ echo '{
   "document_id": "abc123",
   "rows": 3,
   "cols": 4
-}' | scripts/docs_manager.py insert-table
+}' | gsuite docs insert-table
 ```
 
 **Insert table with data**:
@@ -309,7 +309,7 @@ echo '{
     ["Row 1 Col 1", "Row 1 Col 2"],
     ["Row 2 Col 1", "Row 2 Col 2"]
   ]
-}' | scripts/docs_manager.py insert-table
+}' | gsuite docs insert-table
 ```
 
 **Insert table at specific position**:
@@ -320,7 +320,7 @@ echo '{
   "cols": 3,
   "index": 100,
   "data": [["A", "B", "C"], ["1", "2", "3"]]
-}' | scripts/docs_manager.py insert-table
+}' | gsuite docs insert-table
 ```
 
 **Note**: Tables can also be created via Markdown in `create-from-markdown`:
@@ -334,7 +334,7 @@ echo '{
 
 ### User Says: "Read the content of this Google Doc: abc123"
 ```bash
-scripts/docs_manager.py read abc123
+gsuite docs read abc123
 ```
 
 ### User Says: "Create a new document called 'Meeting Notes' with the text 'Attendees: John, Sarah'"
@@ -342,7 +342,7 @@ scripts/docs_manager.py read abc123
 echo '{
   "title": "Meeting Notes",
   "content": "Attendees: John, Sarah"
-}' | scripts/docs_manager.py create
+}' | gsuite docs create
 ```
 
 ### User Says: "Add 'Next Steps' section to the end of document abc123"
@@ -350,7 +350,7 @@ echo '{
 echo '{
   "document_id": "abc123",
   "text": "\n\n## Next Steps\n\n- Review proposals\n- Schedule follow-up"
-}' | scripts/docs_manager.py append
+}' | gsuite docs append
 ```
 
 ### User Says: "Replace all instances of 'Q3' with 'Q4' in document abc123"
@@ -359,7 +359,7 @@ echo '{
   "document_id": "abc123",
   "find": "Q3",
   "replace": "Q4"
-}' | scripts/docs_manager.py replace
+}' | gsuite docs replace
 ```
 
 ### User Says: "Make the first 50 characters of document abc123 bold"
@@ -369,7 +369,7 @@ echo '{
   "start_index": 1,
   "end_index": 50,
   "bold": true
-}' | scripts/docs_manager.py format
+}' | gsuite docs format
 ```
 
 ## Understanding Document Index Positions
@@ -399,96 +399,96 @@ Index 29: end of document
 
 ## Google Drive Operations
 
-The `drive_manager.py` script provides comprehensive Google Drive file management.
+The `gsuite drive` commands provide comprehensive Google Drive file management.
 
 ### Upload Files
 
 ```bash
 # Upload a file to Drive root
-scripts/drive_manager.py upload --file ./document.pdf
+gsuite drive upload --file ./document.pdf
 
 # Upload to specific folder
-scripts/drive_manager.py upload --file ./diagram.excalidraw --folder-id abc123
+gsuite drive upload --file ./diagram.excalidraw --folder-id abc123
 
 # Upload with custom name
-scripts/drive_manager.py upload --file ./local.txt --name "Remote Name.txt"
+gsuite drive upload --file ./local.txt --name "Remote Name.txt"
 ```
 
 ### Download Files
 
 ```bash
 # Download a file
-scripts/drive_manager.py download --file-id abc123 --output ./local_copy.pdf
+gsuite drive download --file-id abc123 --output ./local_copy.pdf
 
 # Export Google Doc as PDF
-scripts/drive_manager.py download --file-id abc123 --output ./doc.pdf --export-as pdf
+gsuite drive download --file-id abc123 --output ./doc.pdf --export-as pdf
 
 # Export Google Sheet as CSV
-scripts/drive_manager.py download --file-id abc123 --output ./data.csv --export-as csv
+gsuite drive download --file-id abc123 --output ./data.csv --export-as csv
 ```
 
 ### Search and List Files
 
 ```bash
 # List recent files
-scripts/drive_manager.py list --max-results 20
+gsuite drive list --max-results 20
 
 # Search by name
-scripts/drive_manager.py search --query "name contains 'Report'"
+gsuite drive search --query "name contains 'Report'"
 
 # Search by type
-scripts/drive_manager.py search --query "mimeType='application/vnd.google-apps.document'"
+gsuite drive search --query "mimeType='application/vnd.google-apps.document'"
 
 # Search in folder
-scripts/drive_manager.py search --query "'folder_id' in parents"
+gsuite drive search --query "'folder_id' in parents"
 
 # Combine queries
-scripts/drive_manager.py search --query "name contains '.excalidraw' and modifiedTime > '2024-01-01'"
+gsuite drive search --query "name contains '.excalidraw' and modifiedTime > '2024-01-01'"
 ```
 
 ### Share Files
 
 ```bash
 # Share with specific user (reader)
-scripts/drive_manager.py share --file-id abc123 --email user@example.com --role reader
+gsuite drive share --file-id abc123 --email user@example.com --role reader
 
 # Share with write access
-scripts/drive_manager.py share --file-id abc123 --email user@example.com --role writer
+gsuite drive share --file-id abc123 --email user@example.com --role writer
 
 # Make publicly accessible (anyone with link)
-scripts/drive_manager.py share --file-id abc123 --type anyone --role reader
+gsuite drive share --file-id abc123 --type anyone --role reader
 
 # Share with entire domain
-scripts/drive_manager.py share --file-id abc123 --type domain --domain example.com --role reader
+gsuite drive share --file-id abc123 --type domain --domain example.com --role reader
 ```
 
 ### Folder Management
 
 ```bash
 # Create a folder
-scripts/drive_manager.py create-folder --name "Project Documents"
+gsuite drive create-folder --name "Project Documents"
 
 # Create folder inside another folder
-scripts/drive_manager.py create-folder --name "Diagrams" --parent-id abc123
+gsuite drive create-folder --name "Diagrams" --parent-id abc123
 
 # Move file to folder
-scripts/drive_manager.py move --file-id file123 --folder-id folder456
+gsuite drive move --file-id file123 --folder-id folder456
 ```
 
 ### Other Operations
 
 ```bash
 # Get file metadata
-scripts/drive_manager.py get-metadata --file-id abc123
+gsuite drive get-metadata --file-id abc123
 
 # Copy a file
-scripts/drive_manager.py copy --file-id abc123 --name "Copy of Document"
+gsuite drive copy --file-id abc123 --name "Copy of Document"
 
 # Update file content (replace)
-scripts/drive_manager.py update --file-id abc123 --file ./new_content.pdf
+gsuite drive update --file-id abc123 --file ./new_content.pdf
 
 # Delete file (moves to trash)
-scripts/drive_manager.py delete --file-id abc123
+gsuite drive delete --file-id abc123
 ```
 
 ### Output Format
@@ -519,28 +519,28 @@ All commands return JSON with consistent structure:
 
 ```bash
 # Step 1: Create document (returns document_id)
-echo '{"title":"Report"}' | scripts/docs_manager.py create
+echo '{"title":"Report"}' | gsuite docs create
 # Returns: {"document_id": "abc123"}
 
 # Step 2: Add content
-echo '{"document_id":"abc123","text":"# Report\n\nContent here"}' | scripts/docs_manager.py insert
+echo '{"document_id":"abc123","text":"# Report\n\nContent here"}' | gsuite docs insert
 
 # Step 3: Organize in folder
-scripts/drive_manager.py move --file-id abc123 --folder-id [folder_id]
+gsuite drive move --file-id abc123 --folder-id [folder_id]
 
 # Step 4: Share with team
-scripts/drive_manager.py share --file-id abc123 --email team@company.com --role writer
+gsuite drive share --file-id abc123 --email team@company.com --role writer
 ```
 
 ### Export Document to PDF
 
 ```bash
-scripts/drive_manager.py download --file-id abc123 --output ./report.pdf --export-as pdf
+gsuite drive download --file-id abc123 --output ./report.pdf --export-as pdf
 ```
 
 ### Excalidraw Diagrams Workflow
 
-For creating and managing Excalidraw diagrams, see the `excalidraw-diagrams` skill which integrates with drive_manager.py for:
+For creating and managing Excalidraw diagrams, see the `excalidraw-diagrams` skill which integrates with `gsuite drive` for:
 - Uploading .excalidraw files to Drive
 - Getting shareable edit URLs for Excalidraw web
 - Round-trip editing between AI and human
@@ -551,33 +551,33 @@ All commands accept an optional `--account <name>` flag to target a specific Goo
 
 1. `--account <name>` CLI flag
 2. `"account"` field in JSON stdin body (for stdin-based commands)
-3. `GDOCS_ACCOUNT` environment variable
+3. `GSUITE_ACCOUNT` environment variable
 4. `"default"`
 
 **First-time auth for a named account**:
 ```bash
-scripts/docs_manager.py auth --account work
+gsuite auth --account work
 ```
 
 **Using a specific account for one command**:
 ```bash
-scripts/docs_manager.py read <doc_id> --account work
+gsuite docs read <doc_id> --account work
 ```
 
 **JSON-input commands accept `account` in the body**:
 ```bash
-echo '{"title":"X","account":"work"}' | scripts/docs_manager.py create
+echo '{"title":"X","account":"work"}' | gsuite docs create
 ```
 
 **Set default for a shell session**:
 ```bash
-export GDOCS_ACCOUNT=work
-scripts/docs_manager.py read <doc_id>
+export GSUITE_ACCOUNT=work
+gsuite docs read <doc_id>
 ```
 
 **List configured accounts**:
 ```bash
-scripts/docs_manager.py list-accounts
+gsuite list-accounts
 ```
 
 ### How accounts are stored and identified
@@ -587,21 +587,21 @@ Every account has one file on disk:
 ```
 ~/.claude/.google/
 ├── client_secret.json              # shared OAuth client (app identity)
-├── token_python_default.json       # token for whichever Google identity authed as 'default'
-├── token_python_work.json          # token for whichever Google identity authed as 'work'
-└── token_python_<name>.json        # …one per account
+├── token_gsuite_default.json       # token for whichever Google identity authed as 'default'
+├── token_gsuite_work.json          # token for whichever Google identity authed as 'work'
+└── token_gsuite_<name>.json        # …one per account
 ```
 
-`client_secret.json` identifies the *app* to Google — it's shared across every account. Each `token_python_<name>.json` is a separate user token with its own refresh token.
+`client_secret.json` identifies the *app* to Google — it's shared across every account. Each `token_gsuite_<name>.json` is a separate user token with its own refresh token.
 
 **The account name is a local label only.** Google has no idea you called an account `work`. The Google identity bound to each token is determined by **which Google account you picked in the browser consent window** when you ran `auth`, not by the name you passed to `--account`. Two consequences:
 
 - To authenticate a second account, run `auth --account <new-name>` and — when the browser opens — use Google's account switcher (top-right of the consent window) or an incognito window to pick a *different* Google identity. Otherwise you'll end up with two files bound to the same underlying Google account.
-- Nothing stops you from accidentally authing as the same Google identity for two different account labels. The skill can't detect this; to verify, run a command that returns account-specific data (e.g. `drive_manager.py list --account <name>`) and check the results.
+- Nothing stops you from accidentally authing as the same Google identity for two different account labels. The skill can't detect this; to verify, run a command that returns account-specific data (e.g. `gsuite drive list --account <name>`) and check the results.
 
 ### Token portability
 
-Tokens are ordinary JSON files. They're portable — copy `~/.claude/.google/token_python_<name>.json` to another machine (with the same `client_secret.json`) and it will work there immediately. No re-authorization needed.
+Tokens are ordinary JSON files. They're portable — copy `~/.claude/.google/token_gsuite_<name>.json` to another machine (with the same `client_secret.json`) and it will work there immediately. No re-authorization needed.
 
 Refresh tokens are long-lived: they don't expire unless explicitly revoked or unused for 6 months (per Google's OAuth policy). The short-lived access token inside the file will be rotated automatically on the next call.
 
@@ -617,7 +617,7 @@ Tokens are sensitive — anyone with a token file can act as that Google account
 Delete the file:
 
 ```bash
-rm ~/.claude/.google/token_python_<name>.json
+rm ~/.claude/.google/token_gsuite_<name>.json
 ```
 
 `list-accounts` will stop reporting it. To fully revoke access on Google's side (so the refresh token can't be used from any backup), visit https://myaccount.google.com/permissions and remove the skill's OAuth app from your authorized apps.
@@ -626,28 +626,28 @@ rm ~/.claude/.google/token_python_<name>.json
 
 **Prerequisites**:
 - `uv` installed (https://docs.astral.sh/uv/).
-- After cloning the skill, run `uv sync` in the skill directory to install Python dependencies.
+- The `gsuite` CLI installed and on PATH. One-time: `uv tool install /path/to/this/repo` (or `uv tool install --from <git-url> gsuite` if installing from a remote). `uv tool install` gives the tool its own isolated venv; no `uv sync` or local venv management needed.
 - OAuth client credentials at `~/.claude/.google/client_secret.json`. See `references/google_cloud_setup.md` for step-by-step Google Cloud Console instructions (create project, enable APIs, download Desktop-app OAuth JSON).
 
-**Token storage**: Per-account files at `~/.claude/.google/token_python_<account>.json`. The default account is `default`. Any existing Ruby-format `token.json` from previous versions is left untouched — this skill does not read or write it.
+**Token storage**: Per-account files at `~/.claude/.google/token_gsuite_<account>.json`. The default account is `default`.
 
 **First Time Setup**:
-1. Run `scripts/docs_manager.py auth` (add `--account <name>` for a named account; defaults to `default`).
+1. Run `gsuite auth` (add `--account <name>` for a named account; defaults to `default`).
 2. A browser window opens to Google's consent screen. Grant access to all requested services.
-3. Google redirects to a short-lived local HTTP server started by the script; the code is captured and exchanged automatically — no copy-paste needed.
-4. Token is saved at `~/.claude/.google/token_python_<account>.json`.
+3. Google redirects to a short-lived local HTTP server started by the CLI; the code is captured and exchanged automatically — no copy-paste needed.
+4. Token is saved at `~/.claude/.google/token_gsuite_<account>.json`.
 
-If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`), the script prints an `AUTH_REQUIRED` error with instructions to run `auth` and exits with code 2.
+If credentials are missing when you run a non-auth command (e.g. `gsuite docs read <doc_id>`), `gsuite` prints an `AUTH_REQUIRED` JSON error with instructions to run `auth` and exits with code 2.
 
 **Re-authorization**:
 - Token automatically refreshes when expired.
-- If refresh fails, re-run the auth flow.
+- If refresh fails (e.g. revoked or >7 days old for unverified apps — see `references/google_cloud_setup.md`), re-run `gsuite auth`.
 
 ## Bundled Resources
 
 ### Scripts
 
-**`scripts/docs_manager.py`**
+**`gsuite docs`**
 - Comprehensive Google Docs API wrapper
 - All document operations: read, create, insert, append, replace, format, delete
 - Document structure analysis (headings)
@@ -672,7 +672,7 @@ If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`
 **Output Format**:
 - JSON with `status: 'success'` or `status: 'error'`
 - Document operations return document_id and revision_id
-- See script help: `scripts/docs_manager.py --help`
+- See script help: `gsuite docs --help`
 
 ### References
 
@@ -694,7 +694,7 @@ If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`
 - Common document operations
 - Workflow examples
 - Index calculation examples
-- Integration with drive_manager.py for file operations
+- Integration with `gsuite drive` commands for file operations
 
 ## Error Handling
 
@@ -744,7 +744,7 @@ If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`
 1. Always provide meaningful title
 2. Add initial content when creating for better context
 3. Save returned document_id for future operations
-4. Use drive_manager.py to organize and share
+4. Use `gsuite drive` commands to organize and share
 
 ### Text Insertion
 1. Read document first to understand current structure
@@ -775,57 +775,57 @@ If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`
 
 **Read document**:
 ```bash
-scripts/docs_manager.py read <document_id>
+gsuite docs read <document_id>
 ```
 
 **Create document from Markdown (RECOMMENDED)**:
 ```bash
-echo '{"title":"My Doc","markdown":"# Heading\n\nParagraph with **bold**."}' | scripts/docs_manager.py create-from-markdown
+echo '{"title":"My Doc","markdown":"# Heading\n\nParagraph with **bold**."}' | gsuite docs create-from-markdown
 ```
 
 **Create document (plain text)**:
 ```bash
-echo '{"title":"My Doc","content":"Initial text"}' | scripts/docs_manager.py create
+echo '{"title":"My Doc","content":"Initial text"}' | gsuite docs create
 ```
 
 **Insert formatted Markdown**:
 ```bash
-echo '{"document_id":"abc123","markdown":"## Section\n\n- Item 1\n- Item 2"}' | scripts/docs_manager.py insert-from-markdown
+echo '{"document_id":"abc123","markdown":"## Section\n\n- Item 1\n- Item 2"}' | gsuite docs insert-from-markdown
 ```
 
 **Insert plain text at beginning**:
 ```bash
-echo '{"document_id":"abc123","text":"New text","index":1}' | scripts/docs_manager.py insert
+echo '{"document_id":"abc123","text":"New text","index":1}' | gsuite docs insert
 ```
 
 **Append to end**:
 ```bash
-echo '{"document_id":"abc123","text":"Appended text"}' | scripts/docs_manager.py append
+echo '{"document_id":"abc123","text":"Appended text"}' | gsuite docs append
 ```
 
 **Find and replace**:
 ```bash
-echo '{"document_id":"abc123","find":"old","replace":"new"}' | scripts/docs_manager.py replace
+echo '{"document_id":"abc123","find":"old","replace":"new"}' | gsuite docs replace
 ```
 
 **Format text**:
 ```bash
-echo '{"document_id":"abc123","start_index":1,"end_index":50,"bold":true}' | scripts/docs_manager.py format
+echo '{"document_id":"abc123","start_index":1,"end_index":50,"bold":true}' | gsuite docs format
 ```
 
 **Get document structure**:
 ```bash
-scripts/docs_manager.py structure <document_id>
+gsuite docs structure <document_id>
 ```
 
 **Insert table**:
 ```bash
-echo '{"document_id":"abc123","rows":3,"cols":2,"data":[["A","B"],["1","2"],["3","4"]]}' | scripts/docs_manager.py insert-table
+echo '{"document_id":"abc123","rows":3,"cols":2,"data":[["A","B"],["1","2"],["3","4"]]}' | gsuite docs insert-table
 ```
 
 **Insert image from URL**:
 ```bash
-echo '{"document_id":"abc123","image_url":"https://example.com/image.png"}' | scripts/docs_manager.py insert-image
+echo '{"document_id":"abc123","image_url":"https://example.com/image.png"}' | gsuite docs insert-image
 ```
 
 ## Example Workflow: Creating and Editing a Report
@@ -835,7 +835,7 @@ echo '{"document_id":"abc123","image_url":"https://example.com/image.png"}' | sc
    echo '{
      "title": "Q4 Report",
      "markdown": "# Q4 Report\n\n## Executive Summary\n\nRevenue increased **25%** over Q3 targets.\n\n## Key Metrics\n\n| Metric | Q3 | Q4 |\n|--------|-----|-----|\n| Revenue | $1M | $1.25M |\n| Users | 10K | 15K |\n\n## Next Steps\n\n- [ ] Finalize budget\n- [ ] Schedule review meeting\n- [x] Complete analysis"
-   }' | scripts/docs_manager.py create-from-markdown
+   }' | gsuite docs create-from-markdown
    # Returns: {"document_id": "abc123"}
    ```
 
@@ -844,7 +844,7 @@ echo '{"document_id":"abc123","image_url":"https://example.com/image.png"}' | sc
    echo '{
      "document_id": "abc123",
      "markdown": "\n\n## Appendix\n\nAdditional *details* and **notes** here."
-   }' | scripts/docs_manager.py insert-from-markdown
+   }' | gsuite docs insert-from-markdown
    ```
 
 3. **Replace text if needed**:
@@ -853,17 +853,17 @@ echo '{"document_id":"abc123","image_url":"https://example.com/image.png"}' | sc
      "document_id": "abc123",
      "find": "Q3",
      "replace": "Q4"
-   }' | scripts/docs_manager.py replace
+   }' | gsuite docs replace
    ```
 
 4. **Share with team**:
    ```bash
-   scripts/drive_manager.py share --file-id abc123 --email team@company.com --role writer
+   gsuite drive share --file-id abc123 --email team@company.com --role writer
    ```
 
 ## Version History
 
-- **2.0.0** (2026-04-18) - Port from Ruby to Python. External CLI contract preserved exactly (same command names, JSON shapes, exit codes). New multi-account support via `--account`. Managed by `uv`; requires `uv sync` after cloning. Token format is now Python native (`google-auth`), stored at `~/.claude/.google/token_python_<account>.json` — existing Ruby token at `token.json` is untouched.
+- **2.0.0** (2026-04-19) - Port from Ruby to Python, restructured as a standalone `gsuite` CLI tool. Two-step install: `uv tool install <repo>` puts `gsuite` on PATH with its own isolated venv; linking the repo into `~/.claude/skills/` installs the Claude skill that documents it. Hierarchical CLI: `gsuite auth`, `gsuite list-accounts`, `gsuite docs <cmd>`, `gsuite drive <cmd>`. New multi-account support via `--account`. OAuth uses `InstalledAppFlow.run_local_server()` (loopback) — no deprecated OOB flow. Tokens at `~/.claude/.google/token_gsuite_<account>.json`.
 - **1.2.0** (2025-12-25) - Added markdown support documentation: `create-from-markdown`, `insert-from-markdown`, `insert-table` commands. Supports headings, bold, italic, code, lists, checkboxes, tables, and horizontal rules.
 - **1.1.0** (2025-12-20) - Added Google Drive operations via drive_manager.py: upload, download, search, list, share, move, copy, delete, folder management. Integrated with excalidraw-diagrams skill for diagram workflows.
 - **1.0.0** (2025-11-10) - Initial Google Docs skill with full document operations: read, create, insert, append, replace, format, page breaks, structure analysis. Shared OAuth token with email, calendar, contacts, drive, and sheets skills.

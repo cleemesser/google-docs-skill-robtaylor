@@ -1,6 +1,6 @@
 # Examples
 
-Runnable shell scripts that exercise the `scripts/docs_manager.py` and `scripts/drive_manager.py` CLIs end-to-end. Each script is self-contained, chdir's to the skill root on its own, and prints the JSON responses as it goes so you can see what's happening.
+Runnable shell scripts that exercise the `gsuite docs` and `gsuite drive` CLIs end-to-end. Each script is self-contained, chdir's to the skill root on its own, and prints the JSON responses as it goes so you can see what's happening.
 
 **Prerequisites**:
 - Auth is set up for at least the `default` account (see `../references/google_cloud_setup.md`).

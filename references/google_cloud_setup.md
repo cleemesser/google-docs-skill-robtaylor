@@ -54,7 +54,7 @@ mv ~/Downloads/client_secret_*.apps.googleusercontent.com.json \
    ~/.claude/.google/client_secret.json
 ```
 
-That's it — run `scripts/docs_manager.py auth` and a browser will open for the consent flow.
+That's it — run `gsuite docs auth` and a browser will open for the consent flow.
 
 ## Refresh token expiry
 
@@ -75,7 +75,7 @@ ls -l ~/.claude/.google/client_secret.json
 Should exist and be readable. Then:
 
 ```bash
-scripts/docs_manager.py auth
+gsuite docs auth
 ```
 
-Browser opens, you grant access, the script writes `~/.claude/.google/token_python_default.json`, and exits with `status: success`. You're done.
+Browser opens, you grant access, the script writes `~/.claude/.google/token_gsuite_default.json`, and exits with `status: success`. You're done.

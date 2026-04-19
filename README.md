@@ -1,6 +1,6 @@
-# Google Docs Skill for Claude Code
+# gsuite — CLI + Claude Code skill for Google Workspace
 
-A Claude Code skill for managing Google Docs and Google Drive with comprehensive document and file operations.
+A Python CLI (`gsuite`) for Google Docs and Drive operations (with room to grow into Calendar, Gmail, etc.), plus a Claude Code skill that documents the CLI so Claude knows how to call it. The CLI is useful standalone; the skill is just a thin documentation layer on top.
 
 ## Features
 
@@ -23,25 +23,26 @@ A Claude Code skill for managing Google Docs and Google Drive with comprehensive
 
 ## Installation
 
-Add this skill to your Claude Code configuration:
+Two steps: install the CLI, then (optionally) register the Claude skill.
 
 ```bash
-# Clone to your skills directory
-git clone https://github.com/robtaylor/google-docs-skill.git ~/.claude/skills/google-docs
+# 1. Clone somewhere you'll keep it long-term
+git clone https://github.com/robtaylor/google-docs-skill.git ~/src/gsuite
 
-# Or add as submodule to your claude-config
-cd ~/.claude
-git submodule add https://github.com/robtaylor/google-docs-skill.git skills/google-docs
+# 2. Install the CLI with its own isolated venv (requires uv — https://docs.astral.sh/uv/)
+uv tool install ~/src/gsuite
+# Now `gsuite` is on PATH. Upgrades: uv tool upgrade gsuite
+
+# 3. (Optional) Link the Claude Code skill
+ln -s ~/src/gsuite ~/.claude/skills/google-docs
 ```
 
 ## Setup
 
-1. **Install `uv`** — see https://docs.astral.sh/uv/ (required to run the Python entry scripts).
-2. **Set up Google Cloud credentials** — follow [references/google_cloud_setup.md](references/google_cloud_setup.md) to create a project, enable the Docs and Drive APIs, and download an OAuth 2.0 Desktop client JSON as `~/.claude/.google/client_secret.json`.
-3. **Install Python dependencies** — run `uv sync` in the skill directory.
-4. **Authorize** — run `scripts/docs_manager.py auth`. A browser window opens; consent; token is captured automatically.
+1. **Google Cloud credentials** — follow [references/google_cloud_setup.md](references/google_cloud_setup.md) to create a project, enable the Docs and Drive APIs, and download an OAuth 2.0 Desktop client JSON as `~/.claude/.google/client_secret.json`.
+2. **Authorize** — run `gsuite auth`. A browser window opens; grant access; the token is captured automatically at `~/.claude/.google/token_gsuite_default.json`. For a named account, pass `--account <name>`.
 
-Tokens are stored per-account at `~/.claude/.google/token_python_<account>.json`.
+Once you've linked the skill directory into `~/.claude/skills/`, Claude Code discovers it on the next session and can call `gsuite` on your behalf.
 
 ## Usage
 
@@ -51,16 +52,16 @@ See [SKILL.md](SKILL.md) for complete documentation and examples.
 
 ```bash
 # Read a document
-scripts/docs_manager.py read <document_id>
+gsuite docs read <document_id>
 
 # Create a document
-echo '{"title": "My Doc", "content": "Hello World"}' | scripts/docs_manager.py create
+echo '{"title": "My Doc", "content": "Hello World"}' | gsuite docs create
 
 # Upload a file to Drive
-scripts/drive_manager.py upload --file ./myfile.pdf --name "My PDF"
+gsuite drive upload --file ./myfile.pdf --name "My PDF"
 
 # Search Drive
-scripts/drive_manager.py search --query "name contains 'Report'"
+gsuite drive search --query "name contains 'Report'"
 ```
 
 ## License

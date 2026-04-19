@@ -43,7 +43,7 @@ echo ">> Creating doc..."
 RESPONSE=$(jq -n --arg title "Python Port Demo $(date +%Y-%m-%d-%H%M%S)" \
                  --arg markdown "$MARKDOWN" \
                  '{title: $title, markdown: $markdown}' \
-            | scripts/docs_manager.py create-from-markdown)
+            | gsuite docs create-from-markdown)
 
 echo "$RESPONSE"
 
@@ -54,4 +54,4 @@ echo ">> Done. Open the doc to verify rendering:"
 echo "   https://docs.google.com/document/d/$DOC_ID/edit"
 echo
 echo ">> To clean up later:"
-echo "   scripts/drive_manager.py delete --file-id $DOC_ID"
+echo "   gsuite drive delete --file-id $DOC_ID"

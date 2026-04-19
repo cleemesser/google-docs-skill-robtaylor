@@ -19,17 +19,17 @@ RETURNED_PATH="$WORKDIR/returned-$NAME"
 printf 'Hello from %s\nLine 2\nLine 3\n' "$(date)" > "$LOCAL_PATH"
 
 echo ">> 1. Uploading $LOCAL_PATH as '$NAME'..."
-UPLOAD=$(scripts/drive_manager.py upload --file "$LOCAL_PATH")
+UPLOAD=$(gsuite drive upload --file "$LOCAL_PATH")
 echo "$UPLOAD"
 FILE_ID=$(echo "$UPLOAD" | python -c 'import json,sys; print(json.load(sys.stdin)["file"]["id"])')
 
 echo
 echo ">> 2. Searching by name..."
-scripts/drive_manager.py search --query "name = '$NAME'"
+gsuite drive search --query "name = '$NAME'"
 
 echo
 echo ">> 3. Downloading back to $RETURNED_PATH..."
-scripts/drive_manager.py download --file-id "$FILE_ID" --output "$RETURNED_PATH"
+gsuite drive download --file-id "$FILE_ID" --output "$RETURNED_PATH"
 
 echo
 echo ">> 4. Diffing original vs downloaded..."
@@ -42,7 +42,7 @@ fi
 
 echo
 echo ">> 5. Deleting from Drive (moves to trash)..."
-scripts/drive_manager.py delete --file-id "$FILE_ID"
+gsuite drive delete --file-id "$FILE_ID"
 
 echo
 echo ">> Round-trip complete."
