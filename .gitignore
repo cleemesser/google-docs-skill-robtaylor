@@ -9,3 +9,7 @@ __pycache__/
 
 # Editor / local tooling
 .claude/settings.local.json
+
+# Editor swap files
+*.swp
+*.swo

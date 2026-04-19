@@ -1,4 +1,14 @@
-"""Shared CLI plumbing for docs_manager and drive_manager entry scripts."""
+"""CLI dispatcher for the gsuite tool.
+
+Single entry point `gsuite` with hierarchical subcommands:
+
+    gsuite auth [--account <name>]
+    gsuite list-accounts
+    gsuite docs <command> [...]
+    gsuite drive <command> [...]
+
+Wired up via [project.scripts] gsuite = "gsuite.cli:main" in pyproject.toml.
+"""
 from __future__ import annotations
 
 import json
@@ -65,7 +75,7 @@ def resolve_account(flag_account: str | None, body: dict | None = None) -> str:
         return flag_account
     if body and isinstance(body.get("account"), str) and body["account"]:
         return body["account"]
-    env = os.environ.get("GDOCS_ACCOUNT")
+    env = os.environ.get("GSUITE_ACCOUNT")
     if env:
         return env
     return "default"
@@ -85,11 +95,11 @@ def handle_auth_required(e: AuthRequiredError, operation: str) -> None:
         extra["account"] = e.account
     extra["instructions"] = [
         (
-            f"Run: scripts/<script>.py auth --account {e.account}"
+            f"Run: gsuite auth --account {e.account}"
             if e.account
-            else "Run: scripts/<script>.py auth [--account <name>]"
+            else "Run: gsuite auth [--account <name>]"
         ),
-        "A browser window will open for you to authorize the skill.",
+        "A browser window will open for you to authorize the tool.",
     ]
     emit_error("AUTH_REQUIRED", str(e), **extra)
 
@@ -138,20 +148,10 @@ def do_auth(argv: list[str], operation: str = "auth") -> int:
 
 
 def main_docs(argv: list[str]) -> int:
-    if not argv:
-        emit_error("MISSING_COMMAND", "Usage: docs_manager.py <command> [...]")
-        return EXIT_INVALID_ARGS
-
-    if argv[0] == "auth":
-        return do_auth(argv[1:], operation="auth")
-
-    if argv[0] == "list-accounts":
-        emit_list_accounts()
-        return EXIT_SUCCESS
-
+    """Dispatch `gsuite docs <command> [...]`. Expects argv to start at <command>."""
     flag_account, remaining = pop_account(argv)
     if not remaining:
-        emit_error("MISSING_COMMAND", "Usage: docs_manager.py <command> [...]")
+        emit_error("MISSING_COMMAND", "Usage: gsuite docs <command> [...]")
         return EXIT_INVALID_ARGS
     command = remaining[0]
 
@@ -174,8 +174,8 @@ def main_docs(argv: list[str]) -> int:
     if command not in all_commands:
         emit_error(
             "INVALID_COMMAND",
-            f"Unknown command: {command}",
-            valid_commands=sorted(all_commands | {"auth", "list-accounts"}),
+            f"Unknown docs command: {command}",
+            valid_commands=sorted(all_commands),
         )
         return EXIT_INVALID_ARGS
 
@@ -360,20 +360,10 @@ def _parse_drive_flags(argv: list[str]) -> dict:
 
 
 def main_drive(argv: list[str]) -> int:
-    if not argv:
-        emit_error("MISSING_COMMAND", "Usage: drive_manager.py <command> [...]")
-        return EXIT_INVALID_ARGS
-
-    if argv[0] == "auth":
-        return do_auth(argv[1:], operation="auth")
-
-    if argv[0] == "list-accounts":
-        emit_list_accounts()
-        return EXIT_SUCCESS
-
+    """Dispatch `gsuite drive <command> [...]`. Expects argv to start at <command>."""
     flag_account, remaining = pop_account(argv)
     if not remaining:
-        emit_error("MISSING_COMMAND", "Usage: drive_manager.py <command> [...]")
+        emit_error("MISSING_COMMAND", "Usage: gsuite drive <command> [...]")
         return EXIT_INVALID_ARGS
     command = remaining[0]
 
@@ -393,8 +383,8 @@ def main_drive(argv: list[str]) -> int:
     if command not in valid_commands:
         emit_error(
             "UNKNOWN_COMMAND",
-            f"Unknown command: {command}",
-            valid_commands=sorted(valid_commands | {"auth", "list-accounts"}),
+            f"Unknown drive command: {command}",
+            valid_commands=sorted(valid_commands),
         )
         return EXIT_INVALID_ARGS
 
@@ -539,3 +529,49 @@ def main_drive(argv: list[str]) -> int:
 
     run_safely(command, run)
     return EXIT_SUCCESS
+
+
+# ---------------------------------------------------------------------------
+# Top-level entry point -- wired via [project.scripts] gsuite = "gsuite.cli:main"
+# ---------------------------------------------------------------------------
+
+_TOP_LEVEL_GROUPS = ("docs", "drive")
+_TOP_LEVEL_COMMANDS = ("auth", "list-accounts")
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Dispatch `gsuite <group-or-command> [...]`."""
+    if argv is None:
+        argv = sys.argv[1:]
+
+    if not argv:
+        emit_error(
+            "MISSING_COMMAND",
+            "Usage: gsuite <command> [...]",
+            valid_commands=sorted(_TOP_LEVEL_GROUPS + _TOP_LEVEL_COMMANDS),
+        )
+        return EXIT_INVALID_ARGS
+
+    first = argv[0]
+    rest = argv[1:]
+
+    if first == "auth":
+        return do_auth(rest, operation="auth")
+    if first == "list-accounts":
+        emit_list_accounts()
+        return EXIT_SUCCESS
+    if first == "docs":
+        return main_docs(rest)
+    if first == "drive":
+        return main_drive(rest)
+
+    emit_error(
+        "INVALID_COMMAND",
+        f"Unknown command: {first}",
+        valid_commands=sorted(_TOP_LEVEL_GROUPS + _TOP_LEVEL_COMMANDS),
+    )
+    return EXIT_INVALID_ARGS
+
+
+if __name__ == "__main__":
+    sys.exit(main())

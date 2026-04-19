@@ -1,7 +1,7 @@
-"""OAuth flow and credential storage for the gdocs skill.
+"""OAuth flow and credential storage for the gsuite CLI.
 
 Supports multiple accounts via a per-account token file:
-~/.claude/.google/token_python_<account>.json
+~/.claude/.google/token_gsuite_<account>.json
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ SCOPES = [
 
 GOOGLE_DIR = Path.home() / ".claude" / ".google"
 CREDENTIALS_PATH = GOOGLE_DIR / "client_secret.json"
-TOKEN_PREFIX = "token_python_"
+TOKEN_PREFIX = "token_gsuite_"
 
 
 class AuthRequiredError(Exception):
@@ -84,8 +84,7 @@ def get_credentials(account: str = "default") -> Credentials:
 
     raise AuthRequiredError(
         f"No valid credentials for account '{account}'. "
-        f"Run the auth subcommand to authorize, e.g. "
-        f"`scripts/docs_manager.py auth --account {account}`.",
+        f"Run `gsuite auth --account {account}` to authorize.",
         reason=AuthRequiredError.REASON_MISSING_TOKEN,
         account=account,
     )
