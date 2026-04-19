@@ -51,6 +51,35 @@ def parse(markdown: str, base_index: int = 1) -> Parsed:
     i = 0
     while i < len(lines):
         line = lines[i].rstrip()
+
+        if line.startswith("# "):
+            heading = line[2:] + "\n"
+            result.formats.append(
+                Format("heading1", current_index, current_index + len(heading) - 1)
+            )
+            result.text += heading
+            current_index += len(heading)
+            i += 1
+            continue
+        if line.startswith("## "):
+            heading = line[3:] + "\n"
+            result.formats.append(
+                Format("heading2", current_index, current_index + len(heading) - 1)
+            )
+            result.text += heading
+            current_index += len(heading)
+            i += 1
+            continue
+        if line.startswith("### "):
+            heading = line[4:] + "\n"
+            result.formats.append(
+                Format("heading3", current_index, current_index + len(heading) - 1)
+            )
+            result.text += heading
+            current_index += len(heading)
+            i += 1
+            continue
+
         # Fallthrough: plain paragraph with inline formatting
         para_text, inline_formats = _process_inline(line, current_index)
         result.formats.extend(inline_formats)

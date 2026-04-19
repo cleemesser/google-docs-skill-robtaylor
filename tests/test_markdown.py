@@ -27,3 +27,22 @@ def test_inline_bold_italic_code():
     assert Format("italic", 10, 12) in result.formats
     assert Format("code", 15, 17) in result.formats
     assert len(result.formats) == 3
+
+
+def test_heading1():
+    result = parse("# Title")
+    assert result.text == "Title\n"
+    # Ruby: end = start + len("Title\n") - 1 = 1 + 6 - 1 = 6
+    assert result.formats == [Format("heading1", 1, 6)]
+
+
+def test_heading2():
+    result = parse("## Sub")
+    assert result.text == "Sub\n"
+    assert result.formats == [Format("heading2", 1, 4)]
+
+
+def test_heading3():
+    result = parse("### Small")
+    assert result.text == "Small\n"
+    assert result.formats == [Format("heading3", 1, 6)]
