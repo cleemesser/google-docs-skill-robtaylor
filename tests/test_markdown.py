@@ -95,3 +95,23 @@ def test_table_3x2():
     t = result.tables[0]
     assert t.num_rows == 3
     assert t.rows == [["H1", "H2"], ["a", "b"], ["c", "d"]]
+
+
+def test_mixed_document():
+    md = "# Title\n\nPara **b**.\n\n- one\n- two"
+    result = parse(md)
+    assert result.text == "Title\n\nPara b.\n\n• one\n• two\n"
+    kinds = [f.kind for f in result.formats]
+    assert "heading1" in kinds
+    assert "bold" in kinds
+
+
+def test_base_index_shifts_format_ranges():
+    md = "# Hi"
+    r_default = parse(md)
+    r_offset = parse(md, base_index=100)
+    assert r_default.text == r_offset.text
+    (orig,) = r_default.formats
+    (shifted,) = r_offset.formats
+    assert shifted.start == orig.start + 99
+    assert shifted.end == orig.end + 99
