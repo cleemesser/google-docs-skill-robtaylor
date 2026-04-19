@@ -128,6 +128,17 @@ def parse(markdown: str, base_index: int = 1) -> Parsed:
             i += 1
             continue
 
+        if line == "---":
+            result.text += HR_LINE
+            current_index += len(HR_LINE)
+            i += 1
+            continue
+        if line == "":
+            result.text += "\n"
+            current_index += 1
+            i += 1
+            continue
+
         # Fallthrough: plain paragraph with inline formatting
         para_text, inline_formats = _process_inline(line, current_index)
         result.formats.extend(inline_formats)

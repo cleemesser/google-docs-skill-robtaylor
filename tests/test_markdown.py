@@ -63,3 +63,13 @@ def test_numbered_list():
 def test_checkbox_unchecked_and_checked():
     result = parse("- [ ] todo\n- [x] done")
     assert result.text == "☐ todo\n☑ done\n"
+
+
+def test_horizontal_rule():
+    result = parse("---")
+    assert result.text == "———————————————————————————\n"
+
+
+def test_empty_line_between_paragraphs():
+    result = parse("a\n\nb")
+    assert result.text == "a\n\nb\n"
