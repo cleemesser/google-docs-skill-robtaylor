@@ -73,3 +73,25 @@ def test_horizontal_rule():
 def test_empty_line_between_paragraphs():
     result = parse("a\n\nb")
     assert result.text == "a\n\nb\n"
+
+
+def test_table_2x2_with_separator():
+    md = "| A | B |\n|---|---|\n| 1 | 2 |"
+    result = parse(md)
+    # Ruby inserts a single \n as a placeholder at the table position
+    assert result.text == "\n"
+    assert len(result.tables) == 1
+    t = result.tables[0]
+    assert t.num_rows == 2
+    assert t.num_cols == 2
+    assert t.rows == [["A", "B"], ["1", "2"]]
+    assert t.insert_index == 1
+
+
+def test_table_3x2():
+    md = "| H1 | H2 |\n|---|---|\n| a | b |\n| c | d |"
+    result = parse(md)
+    assert result.text == "\n"
+    t = result.tables[0]
+    assert t.num_rows == 3
+    assert t.rows == [["H1", "H2"], ["a", "b"], ["c", "d"]]

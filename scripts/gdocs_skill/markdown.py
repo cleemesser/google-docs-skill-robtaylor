@@ -128,6 +128,32 @@ def parse(markdown: str, base_index: int = 1) -> Parsed:
             i += 1
             continue
 
+        if line.startswith("|") and line.endswith("|"):
+            rows: list[list[str]] = []
+            j = i
+            while j < len(lines):
+                tl = lines[j].rstrip()
+                if not (tl.startswith("|") and tl.endswith("|")):
+                    break
+                cells = [c.strip() for c in tl[1:-1].split("|")]
+                # Skip separator row (all cells are --- or :---:)
+                if not all(re.fullmatch(r"[-:]+", c) for c in cells):
+                    rows.append(cells)
+                j += 1
+            if rows:
+                result.tables.append(
+                    TableSpec(
+                        rows=rows,
+                        insert_index=current_index,
+                        num_rows=len(rows),
+                        num_cols=len(rows[0]),
+                    )
+                )
+                result.text += "\n"
+                current_index += 1
+            i = j
+            continue
+
         if line == "---":
             result.text += HR_LINE
             current_index += len(HR_LINE)
