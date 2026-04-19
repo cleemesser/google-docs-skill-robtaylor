@@ -8,7 +8,7 @@ from typing import Any
 
 from googleapiclient.errors import HttpError
 
-from .auth import AuthRequiredError, complete_auth, list_accounts
+from .auth import CREDENTIALS_PATH, AuthRequiredError, complete_auth, list_accounts
 
 EXIT_SUCCESS = 0
 EXIT_OPERATION_FAILED = 1
@@ -72,21 +72,26 @@ def resolve_account(flag_account: str | None, body: dict | None = None) -> str:
 
 
 def handle_auth_required(e: AuthRequiredError, operation: str) -> None:
-    if e.auth_url:
-        emit_error(
-            "AUTH_REQUIRED",
-            str(e),
-            operation=operation,
-            auth_url=e.auth_url,
-            instructions=[
-                "1. Visit the authorization URL",
-                "2. Grant access to the requested Google services",
-                "3. Copy the authorization code",
-                "4. Run: scripts/<script>.py auth <code> [--account <name>]",
-            ],
-        )
-    else:
-        emit_error("AUTH_REQUIRED", str(e), operation=operation)
+    extra: dict[str, Any] = {"operation": operation}
+    if e.reason == AuthRequiredError.REASON_MISSING_CLIENT_SECRET:
+        extra["instructions"] = [
+            "1. Create Google Cloud OAuth 2.0 client credentials (Desktop app type).",
+            f"2. Save the downloaded JSON at {CREDENTIALS_PATH}.",
+            "3. Re-run the command.",
+        ]
+        emit_error("AUTH_REQUIRED", str(e), **extra)
+        return
+    if e.account is not None:
+        extra["account"] = e.account
+    extra["instructions"] = [
+        (
+            f"Run: scripts/<script>.py auth --account {e.account}"
+            if e.account
+            else "Run: scripts/<script>.py auth [--account <name>]"
+        ),
+        "A browser window will open for you to authorize the skill.",
+    ]
+    emit_error("AUTH_REQUIRED", str(e), **extra)
 
 
 def handle_http_error(e: HttpError, operation: str) -> None:
@@ -116,17 +121,12 @@ def emit_list_accounts() -> None:
 
 def do_auth(argv: list[str], operation: str = "auth") -> int:
     account, remaining = pop_account(argv)
-    if not remaining:
-        emit_error(
-            "MISSING_CODE",
-            "Authorization code required",
-            operation=operation,
-            usage="auth <code> [--account <name>]",
-        )
-        return EXIT_INVALID_ARGS
-    code = remaining[0]
+    # The loopback flow takes no positional args; ignore any extras rather
+    # than erroring so users migrating from the old OOB `auth <code>` form
+    # don't get a confusing failure on their first attempt.
+    del remaining
     try:
-        complete_auth(code, account or "default")
+        complete_auth(account or "default")
     except AuthRequiredError as e:
         handle_auth_required(e, operation)
         return EXIT_AUTH_ERROR

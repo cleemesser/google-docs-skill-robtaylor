@@ -34,7 +34,7 @@ CLI conventions (preserved from the previous Ruby version):
 
 OAuth client credentials at `~/.claude/.google/client_secret.json` (user-provided). Per-account tokens at `~/.claude/.google/token_python_<account>.json` (generated, native `google-auth` JSON format).
 
-Tokens auto-refresh on expiry. If refresh fails, `get_credentials` raises `AuthRequiredError` with an auth URL; the CLI dispatcher emits a JSON error with code `AUTH_REQUIRED` and exits with code 2. Complete auth with `scripts/docs_manager.py auth <code> [--account <name>]`.
+Tokens auto-refresh on expiry. If refresh fails or no token exists for the requested account, `get_credentials` raises `AuthRequiredError`; the CLI dispatcher emits a JSON error with code `AUTH_REQUIRED` and exits with code 2. Authorize with `scripts/docs_manager.py auth [--account <name>]` — the script runs `InstalledAppFlow.run_local_server()` which opens the user's browser and captures the redirect on a short-lived local HTTP server (no code paste, no deprecated OOB flow).
 
 The full Google scope superset (Docs, Drive, Sheets, Calendar, Contacts, Gmail) is requested so a single token works for any Python Google skill in this family. Any existing Ruby-format `~/.claude/.google/token.json` from the previous version is left untouched.
 

@@ -556,7 +556,7 @@ All commands accept an optional `--account <name>` flag to target a specific Goo
 
 **First-time auth for a named account**:
 ```bash
-scripts/docs_manager.py auth <code> --account work
+scripts/docs_manager.py auth --account work
 ```
 
 **Using a specific account for one command**:
@@ -592,11 +592,12 @@ Tokens are stored per-account at `~/.claude/.google/token_python_<account>.json`
 **Token storage**: Per-account files at `~/.claude/.google/token_python_<account>.json`. The default account is `default`. Any existing Ruby-format `token.json` from previous versions is left untouched — this skill does not read or write it.
 
 **First Time Setup**:
-1. Run any docs operation (e.g. `scripts/docs_manager.py list-accounts` won't trigger auth; `scripts/docs_manager.py read <doc_id>` will).
-2. Script will print an authorization URL with status `AUTH_REQUIRED` and exit code 2.
-3. Visit URL and authorize all Google services.
-4. Complete auth: `scripts/docs_manager.py auth <code>` (or `--account <name>` for a named account).
-5. Token stored at `~/.claude/.google/token_python_<account>.json`.
+1. Run `scripts/docs_manager.py auth` (add `--account <name>` for a named account; defaults to `default`).
+2. A browser window opens to Google's consent screen. Grant access to all requested services.
+3. Google redirects to a short-lived local HTTP server started by the script; the code is captured and exchanged automatically — no copy-paste needed.
+4. Token is saved at `~/.claude/.google/token_python_<account>.json`.
+
+If credentials are missing when you run a non-auth command (e.g. `read <doc_id>`), the script prints an `AUTH_REQUIRED` error with instructions to run `auth` and exits with code 2.
 
 **Re-authorization**:
 - Token automatically refreshes when expired.
