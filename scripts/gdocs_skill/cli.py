@@ -135,3 +135,188 @@ def do_auth(argv: list[str], operation: str = "auth") -> int:
         return EXIT_AUTH_ERROR
     emit({"status": "success", "operation": "auth", "account": account or "default"})
     return EXIT_SUCCESS
+
+
+def main_docs(argv: list[str]) -> int:
+    if not argv:
+        emit_error("MISSING_COMMAND", "Usage: docs_manager.py <command> [...]")
+        return EXIT_INVALID_ARGS
+
+    if argv[0] == "auth":
+        return do_auth(argv[1:], operation="auth")
+
+    if argv[0] == "list-accounts":
+        emit_list_accounts()
+        return EXIT_SUCCESS
+
+    flag_account, remaining = pop_account(argv)
+    if not remaining:
+        emit_error("MISSING_COMMAND", "Usage: docs_manager.py <command> [...]")
+        return EXIT_INVALID_ARGS
+    command = remaining[0]
+
+    stdin_commands = {
+        "insert",
+        "append",
+        "replace",
+        "format",
+        "page-break",
+        "create",
+        "create-from-markdown",
+        "insert-from-markdown",
+        "delete",
+        "insert-image",
+        "insert-table",
+    }
+    positional_commands = {"read", "structure"}
+    all_commands = stdin_commands | positional_commands
+
+    if command not in all_commands:
+        emit_error(
+            "INVALID_COMMAND",
+            f"Unknown command: {command}",
+            valid_commands=sorted(all_commands | {"auth", "list-accounts"}),
+        )
+        return EXIT_INVALID_ARGS
+
+    body: dict | None = None
+    if command in stdin_commands:
+        body = read_json_stdin()
+
+    account = resolve_account(flag_account, body)
+
+    def run():
+        from .docs import DocsClient
+
+        client = DocsClient(account=account)
+        match command:
+            case "read":
+                if len(remaining) < 2:
+                    emit_error(
+                        "MISSING_DOCUMENT_ID",
+                        "Document ID required",
+                        operation="read",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.read(remaining[1]))
+            case "structure":
+                if len(remaining) < 2:
+                    emit_error(
+                        "MISSING_DOCUMENT_ID",
+                        "Document ID required",
+                        operation="structure",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.structure(remaining[1]))
+            case "insert":
+                require_fields(body, "document_id", "text", operation="insert")
+                emit(
+                    client.insert(
+                        body["document_id"], body["text"], body.get("index", 1)
+                    )
+                )
+            case "append":
+                require_fields(body, "document_id", "text", operation="append")
+                emit(client.append(body["document_id"], body["text"]))
+            case "replace":
+                require_fields(
+                    body, "document_id", "find", "replace", operation="replace"
+                )
+                emit(
+                    client.replace(
+                        body["document_id"],
+                        body["find"],
+                        body["replace"],
+                        body.get("match_case", False),
+                    )
+                )
+            case "format":
+                require_fields(
+                    body,
+                    "document_id",
+                    "start_index",
+                    "end_index",
+                    operation="format",
+                )
+                emit(
+                    client.format(
+                        body["document_id"],
+                        body["start_index"],
+                        body["end_index"],
+                        body.get("bold"),
+                        body.get("italic"),
+                        body.get("underline"),
+                    )
+                )
+            case "page-break":
+                require_fields(
+                    body, "document_id", "index", operation="page_break"
+                )
+                emit(client.page_break(body["document_id"], body["index"]))
+            case "create":
+                require_fields(body, "title", operation="create")
+                emit(client.create(body["title"], body.get("content")))
+            case "create-from-markdown":
+                require_fields(
+                    body, "title", "markdown", operation="create_from_markdown"
+                )
+                emit(client.create_from_markdown(body["title"], body["markdown"]))
+            case "insert-from-markdown":
+                require_fields(
+                    body,
+                    "document_id",
+                    "markdown",
+                    operation="insert_from_markdown",
+                )
+                emit(
+                    client.insert_from_markdown(
+                        body["document_id"], body["markdown"], body.get("index")
+                    )
+                )
+            case "delete":
+                require_fields(
+                    body,
+                    "document_id",
+                    "start_index",
+                    "end_index",
+                    operation="delete",
+                )
+                emit(
+                    client.delete(
+                        body["document_id"],
+                        body["start_index"],
+                        body["end_index"],
+                    )
+                )
+            case "insert-image":
+                require_fields(
+                    body, "document_id", "image_url", operation="insert_image"
+                )
+                emit(
+                    client.insert_image(
+                        body["document_id"],
+                        body["image_url"],
+                        body.get("index"),
+                        body.get("width"),
+                        body.get("height"),
+                    )
+                )
+            case "insert-table":
+                require_fields(
+                    body, "document_id", "rows", "cols", operation="insert_table"
+                )
+                emit(
+                    client.insert_table(
+                        body["document_id"],
+                        body["rows"],
+                        body["cols"],
+                        body.get("index"),
+                        body.get("data"),
+                    )
+                )
+            case _:
+                # Unreachable: guarded by all_commands check above.
+                raise AssertionError(f"unhandled command: {command}")
+
+    run_safely(command, run)
+    return EXIT_SUCCESS
