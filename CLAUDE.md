@@ -38,6 +38,12 @@ Tokens auto-refresh on expiry. If refresh fails or no token exists for the reque
 
 The full Google scope superset (Docs, Drive, Sheets, Calendar, Contacts, Gmail) is requested so a single token works for any Python Google skill in this family. Any existing Ruby-format `~/.claude/.google/token.json` from the previous version is left untouched.
 
+**Account labels are local-only.** The `<account>` component of the filename is not communicated to Google — it's just how this skill picks which token file to load. The Google identity bound to a token is decided by which account the user selected in the browser consent window during `auth`. Two implications that show up in user-reported issues:
+1. To authenticate a *second* Google identity, the user must pick a different account in the browser (account switcher or incognito window); passing `--account new` alone doesn't force a fresh identity.
+2. Two differently-named token files can end up bound to the same Google identity if the user consented as the same person twice. There's no detection of this — if a bug report says "both my accounts return the same data", this is the first thing to check.
+
+**Tokens are portable.** Token files are ordinary JSON; copying `token_python_<name>.json` between machines (with the same `client_secret.json`) gives the same account access on the new machine. Refresh tokens are long-lived per Google's OAuth policy. `list_accounts()` enumerates whatever files happen to be in `GOOGLE_DIR` — so "removing an account" is literally `rm`, and revocation on Google's side (e.g. lost/stolen token file) must be done at https://myaccount.google.com/permissions.
+
 ## Development
 
 **Dependencies:** managed via `uv` + `pyproject.toml`. After cloning, run `uv sync` in the skill directory to create `.venv/` and install runtime + dev deps.

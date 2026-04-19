@@ -580,7 +580,47 @@ scripts/docs_manager.py read <doc_id>
 scripts/docs_manager.py list-accounts
 ```
 
-Tokens are stored per-account at `~/.claude/.google/token_python_<account>.json`.
+### How accounts are stored and identified
+
+Every account has one file on disk:
+
+```
+~/.claude/.google/
+├── client_secret.json              # shared OAuth client (app identity)
+├── token_python_default.json       # token for whichever Google identity authed as 'default'
+├── token_python_work.json          # token for whichever Google identity authed as 'work'
+└── token_python_<name>.json        # …one per account
+```
+
+`client_secret.json` identifies the *app* to Google — it's shared across every account. Each `token_python_<name>.json` is a separate user token with its own refresh token.
+
+**The account name is a local label only.** Google has no idea you called an account `work`. The Google identity bound to each token is determined by **which Google account you picked in the browser consent window** when you ran `auth`, not by the name you passed to `--account`. Two consequences:
+
+- To authenticate a second account, run `auth --account <new-name>` and — when the browser opens — use Google's account switcher (top-right of the consent window) or an incognito window to pick a *different* Google identity. Otherwise you'll end up with two files bound to the same underlying Google account.
+- Nothing stops you from accidentally authing as the same Google identity for two different account labels. The skill can't detect this; to verify, run a command that returns account-specific data (e.g. `drive_manager.py list --account <name>`) and check the results.
+
+### Token portability
+
+Tokens are ordinary JSON files. They're portable — copy `~/.claude/.google/token_python_<name>.json` to another machine (with the same `client_secret.json`) and it will work there immediately. No re-authorization needed.
+
+Refresh tokens are long-lived: they don't expire unless explicitly revoked or unused for 6 months (per Google's OAuth policy). The short-lived access token inside the file will be rotated automatically on the next call.
+
+Practical uses:
+- **Headless machines.** Authenticate once on a machine with a browser, then copy the token file to the headless one.
+- **Backup.** Copy the token files alongside any other secrets you back up.
+- **Moving between machines.** Just copy the directory.
+
+Tokens are sensitive — anyone with a token file can act as that Google account with the granted scopes. Protect them the same as any credential.
+
+### Removing an account
+
+Delete the file:
+
+```bash
+rm ~/.claude/.google/token_python_<name>.json
+```
+
+`list-accounts` will stop reporting it. To fully revoke access on Google's side (so the refresh token can't be used from any backup), visit https://myaccount.google.com/permissions and remove the skill's OAuth app from your authorized apps.
 
 ## Authentication Setup
 
