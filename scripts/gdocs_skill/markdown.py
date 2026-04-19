@@ -212,3 +212,62 @@ def _process_inline(line: str, base_index: int) -> tuple[str, list[Format]]:
         out.append(line[pos])
         pos += 1
     return "".join(out), formats
+
+
+def build_format_request(fmt: Format) -> dict:
+    """Convert a Format to a Google Docs batchUpdate request dict."""
+    rng = {"startIndex": fmt.start, "endIndex": fmt.end}
+    if fmt.kind == "heading1":
+        return {
+            "updateParagraphStyle": {
+                "range": rng,
+                "paragraphStyle": {"namedStyleType": "HEADING_1"},
+                "fields": "namedStyleType",
+            }
+        }
+    if fmt.kind == "heading2":
+        return {
+            "updateParagraphStyle": {
+                "range": rng,
+                "paragraphStyle": {"namedStyleType": "HEADING_2"},
+                "fields": "namedStyleType",
+            }
+        }
+    if fmt.kind == "heading3":
+        return {
+            "updateParagraphStyle": {
+                "range": rng,
+                "paragraphStyle": {"namedStyleType": "HEADING_3"},
+                "fields": "namedStyleType",
+            }
+        }
+    if fmt.kind == "bold":
+        return {
+            "updateTextStyle": {
+                "range": rng,
+                "textStyle": {"bold": True},
+                "fields": "bold",
+            }
+        }
+    if fmt.kind == "italic":
+        return {
+            "updateTextStyle": {
+                "range": rng,
+                "textStyle": {"italic": True},
+                "fields": "italic",
+            }
+        }
+    if fmt.kind == "code":
+        return {
+            "updateTextStyle": {
+                "range": rng,
+                "textStyle": {
+                    "fontFamily": "Courier New",
+                    "backgroundColor": {
+                        "color": {"rgbColor": {"red": 0.95, "green": 0.95, "blue": 0.95}}
+                    },
+                },
+                "fields": "fontFamily,backgroundColor",
+            }
+        }
+    raise ValueError(f"Unknown format kind: {fmt.kind}")
