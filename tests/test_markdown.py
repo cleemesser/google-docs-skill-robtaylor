@@ -46,3 +46,20 @@ def test_heading3():
     result = parse("### Small")
     assert result.text == "Small\n"
     assert result.formats == [Format("heading3", 1, 6)]
+
+
+def test_bullet_list():
+    result = parse("- one\n- two\n- three")
+    assert result.text == "• one\n• two\n• three\n"
+    assert result.formats == []
+
+
+def test_numbered_list():
+    result = parse("1. alpha\n2. beta")
+    assert result.text == "1. alpha\n2. beta\n"
+    assert result.formats == []
+
+
+def test_checkbox_unchecked_and_checked():
+    result = parse("- [ ] todo\n- [x] done")
+    assert result.text == "☐ todo\n☑ done\n"

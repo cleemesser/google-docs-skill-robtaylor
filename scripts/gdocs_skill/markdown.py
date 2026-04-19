@@ -80,6 +80,54 @@ def parse(markdown: str, base_index: int = 1) -> Parsed:
             i += 1
             continue
 
+        # Checkbox (must come before bullet list)
+        if line.startswith("- [ ] ") or line.startswith("* [ ] "):
+            item = line[6:]
+            prefix = "☐ "
+            span, fmts = _process_inline(item, current_index + len(prefix))
+            block = prefix + span + "\n"
+            result.formats.extend(fmts)
+            result.text += block
+            current_index += len(block)
+            i += 1
+            continue
+        if (
+            line.startswith("- [x] ")
+            or line.startswith("* [x] ")
+            or line.startswith("- [X] ")
+            or line.startswith("* [X] ")
+        ):
+            item = line[6:]
+            prefix = "☑ "
+            span, fmts = _process_inline(item, current_index + len(prefix))
+            block = prefix + span + "\n"
+            result.formats.extend(fmts)
+            result.text += block
+            current_index += len(block)
+            i += 1
+            continue
+        if line.startswith("- ") or line.startswith("* "):
+            item = line[2:]
+            prefix = "• "
+            span, fmts = _process_inline(item, current_index + len(prefix))
+            block = prefix + span + "\n"
+            result.formats.extend(fmts)
+            result.text += block
+            current_index += len(block)
+            i += 1
+            continue
+        m = _NUMBERED_RE.match(line)
+        if m:
+            num_prefix = f"{m.group(1)}. "
+            item = m.group(2)
+            span, fmts = _process_inline(item, current_index + len(num_prefix))
+            block = num_prefix + span + "\n"
+            result.formats.extend(fmts)
+            result.text += block
+            current_index += len(block)
+            i += 1
+            continue
+
         # Fallthrough: plain paragraph with inline formatting
         para_text, inline_formats = _process_inline(line, current_index)
         result.formats.extend(inline_formats)
