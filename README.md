@@ -37,11 +37,9 @@ git submodule add https://github.com/robtaylor/google-docs-skill.git skills/goog
 ## Setup
 
 1. **Install `uv`** — see https://docs.astral.sh/uv/ (required to run the Python entry scripts).
-2. **Create Google Cloud Project** and enable the Docs and Drive APIs.
-3. **Create OAuth 2.0 credentials** (Desktop application type).
-4. **Download credentials** and save as `~/.claude/.google/client_secret.json`.
-5. **Install dependencies** — run `uv sync` in the skill directory.
-6. **Run any command** — the script will prompt for authorization on first use.
+2. **Set up Google Cloud credentials** — follow [references/google_cloud_setup.md](references/google_cloud_setup.md) to create a project, enable the Docs and Drive APIs, and download an OAuth 2.0 Desktop client JSON as `~/.claude/.google/client_secret.json`.
+3. **Install Python dependencies** — run `uv sync` in the skill directory.
+4. **Authorize** — run `scripts/docs_manager.py auth`. A browser window opens; consent; token is captured automatically.
 
 Tokens are stored per-account at `~/.claude/.google/token_python_<account>.json`.
 

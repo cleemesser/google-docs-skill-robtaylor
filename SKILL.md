@@ -627,7 +627,7 @@ rm ~/.claude/.google/token_python_<name>.json
 **Prerequisites**:
 - `uv` installed (https://docs.astral.sh/uv/).
 - After cloning the skill, run `uv sync` in the skill directory to install Python dependencies.
-- OAuth client credentials at `~/.claude/.google/client_secret.json`.
+- OAuth client credentials at `~/.claude/.google/client_secret.json`. See `references/google_cloud_setup.md` for step-by-step Google Cloud Console instructions (create project, enable APIs, download Desktop-app OAuth JSON).
 
 **Token storage**: Per-account files at `~/.claude/.google/token_python_<account>.json`. The default account is `default`. Any existing Ruby-format `token.json` from previous versions is left untouched — this skill does not read or write it.
 
