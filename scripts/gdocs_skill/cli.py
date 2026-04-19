@@ -320,3 +320,222 @@ def main_docs(argv: list[str]) -> int:
 
     run_safely(command, run)
     return EXIT_SUCCESS
+
+
+def _parse_drive_flags(argv: list[str]) -> dict:
+    """Parse --flag-style args used by drive_manager (mirrors Ruby parse_args)."""
+    out: dict = {}
+    i = 0
+    mapping = {
+        "--file": "file",
+        "--file-id": "file_id",
+        "--folder-id": "folder_id",
+        "--parent-id": "parent_id",
+        "--output": "output",
+        "--name": "name",
+        "--query": "query",
+        "--email": "email",
+        "--role": "role",
+        "--type": "type",
+        "--mime-type": "mime_type",
+        "--domain": "domain",
+        "--export-as": "export_as",
+    }
+    while i < len(argv):
+        tok = argv[i]
+        if tok in mapping and i + 1 < len(argv):
+            out[mapping[tok]] = argv[i + 1]
+            i += 2
+            continue
+        if tok == "--max-results" and i + 1 < len(argv):
+            out["max_results"] = int(argv[i + 1])
+            i += 2
+            continue
+        if tok == "--permanent":
+            out["permanent"] = True
+            i += 1
+            continue
+        i += 1
+    return out
+
+
+def main_drive(argv: list[str]) -> int:
+    if not argv:
+        emit_error("MISSING_COMMAND", "Usage: drive_manager.py <command> [...]")
+        return EXIT_INVALID_ARGS
+
+    if argv[0] == "auth":
+        return do_auth(argv[1:], operation="auth")
+
+    if argv[0] == "list-accounts":
+        emit_list_accounts()
+        return EXIT_SUCCESS
+
+    flag_account, remaining = pop_account(argv)
+    if not remaining:
+        emit_error("MISSING_COMMAND", "Usage: drive_manager.py <command> [...]")
+        return EXIT_INVALID_ARGS
+    command = remaining[0]
+
+    valid_commands = {
+        "upload",
+        "download",
+        "list",
+        "search",
+        "get-metadata",
+        "create-folder",
+        "move",
+        "share",
+        "delete",
+        "copy",
+        "update",
+    }
+    if command not in valid_commands:
+        emit_error(
+            "UNKNOWN_COMMAND",
+            f"Unknown command: {command}",
+            valid_commands=sorted(valid_commands | {"auth", "list-accounts"}),
+        )
+        return EXIT_INVALID_ARGS
+
+    opts = _parse_drive_flags(remaining[1:])
+    account = resolve_account(flag_account)
+
+    def run():
+        from .drive import DriveClient
+
+        client = DriveClient(account=account)
+        match command:
+            case "upload":
+                if not opts.get("file"):
+                    emit_error(
+                        "MISSING_FILE",
+                        "File path required: --file <path>",
+                        operation="upload",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.upload(
+                        opts["file"],
+                        opts.get("name"),
+                        opts.get("folder_id"),
+                        opts.get("mime_type"),
+                    )
+                )
+            case "download":
+                if not (opts.get("file_id") and opts.get("output")):
+                    emit_error(
+                        "MISSING_ARGS",
+                        "--file-id and --output required",
+                        operation="download",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.download(
+                        opts["file_id"], opts["output"], opts.get("export_as")
+                    )
+                )
+            case "list":
+                emit(
+                    client.list_files(
+                        opts.get("folder_id"), opts.get("max_results", 100)
+                    )
+                )
+            case "search":
+                if not opts.get("query"):
+                    emit_error(
+                        "MISSING_QUERY",
+                        "--query required",
+                        operation="search",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.search(opts["query"], opts.get("max_results", 100)))
+            case "get-metadata":
+                if not opts.get("file_id"):
+                    emit_error(
+                        "MISSING_FILE_ID",
+                        "--file-id required",
+                        operation="get_metadata",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.get_metadata(opts["file_id"]))
+            case "create-folder":
+                if not opts.get("name"):
+                    emit_error(
+                        "MISSING_NAME",
+                        "--name required",
+                        operation="create_folder",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.create_folder(
+                        opts["name"],
+                        opts.get("parent_id") or opts.get("folder_id"),
+                    )
+                )
+            case "move":
+                if not (opts.get("file_id") and opts.get("folder_id")):
+                    emit_error(
+                        "MISSING_ARGS",
+                        "--file-id and --folder-id required",
+                        operation="move",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.move(opts["file_id"], opts["folder_id"]))
+            case "share":
+                if not opts.get("file_id"):
+                    emit_error(
+                        "MISSING_FILE_ID",
+                        "--file-id required",
+                        operation="share",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.share(
+                        opts["file_id"],
+                        opts.get("email"),
+                        opts.get("role", "reader"),
+                        opts.get("type"),
+                        opts.get("domain"),
+                    )
+                )
+            case "delete":
+                if not opts.get("file_id"):
+                    emit_error(
+                        "MISSING_FILE_ID",
+                        "--file-id required",
+                        operation="delete",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(client.delete(opts["file_id"], opts.get("permanent", False)))
+            case "copy":
+                if not opts.get("file_id"):
+                    emit_error(
+                        "MISSING_FILE_ID",
+                        "--file-id required",
+                        operation="copy",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.copy(
+                        opts["file_id"], opts.get("name"), opts.get("folder_id")
+                    )
+                )
+            case "update":
+                if not (opts.get("file_id") and opts.get("file")):
+                    emit_error(
+                        "MISSING_ARGS",
+                        "--file-id and --file required",
+                        operation="update",
+                    )
+                    sys.exit(EXIT_INVALID_ARGS)
+                emit(
+                    client.update(
+                        opts["file_id"], opts["file"], opts.get("name")
+                    )
+                )
+            case _:
+                raise AssertionError(f"unhandled command: {command}")
+
+    run_safely(command, run)
+    return EXIT_SUCCESS
