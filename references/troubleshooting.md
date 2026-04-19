@@ -141,12 +141,12 @@ All three Google skills use standardized exit codes:
 1. Verify file ID is correct (long alphanumeric string, not file name)
 2. Check file exists with search:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+   ~/.claude/skills/google-drive/scripts/drive_manager.py search \
      --query "name='Your File Name'"
    ```
 3. Verify you have access to the file:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.rb list-permissions \
+   ~/.claude/skills/google-drive/scripts/drive_manager.py list-permissions \
      --file-id "FILE_ID"
    ```
 4. If file is shared, ensure it's shared with your authenticated account
@@ -171,13 +171,13 @@ All three Google skills use standardized exit codes:
 **Solution Steps**:
 1. Check current permissions:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.rb list-permissions \
+   ~/.claude/skills/google-drive/scripts/drive_manager.py list-permissions \
      --file-id "FILE_ID"
    ```
 2. If you're not the owner, request permission from file owner
 3. If you are the owner but using different account, share to authenticated account:
    ```bash
-   ~/.claude/skills/google-drive/scripts/drive_manager.rb share \
+   ~/.claude/skills/google-drive/scripts/drive_manager.py share \
      --file-id "FILE_ID" \
      --email "your-authenticated-email@gmail.com" \
      --role "writer"
@@ -233,7 +233,7 @@ All three Google skills use standardized exit codes:
 **Solution Steps**:
 1. Read document to get current structure:
    ```bash
-   ~/.claude/skills/google-docs/scripts/docs_manager.rb structure "DOCUMENT_ID"
+   ~/.claude/skills/google-docs/scripts/docs_manager.py structure "DOCUMENT_ID"
    ```
 2. Use `append` operation instead of `insert` for adding to end
 3. Calculate correct indices based on content length
@@ -306,13 +306,13 @@ All three Google skills use standardized exit codes:
 **Solution**:
 ```bash
 # WRONG ❌
-drive_manager.rb --list
+drive_manager.py --list
 
 # CORRECT ✅
-drive_manager.rb list
+drive_manager.py list
 ```
 
-**Pattern**: `drive_manager.rb [command] [--flags]`
+**Pattern**: `drive_manager.py [command] [--flags]`
 
 ---
 
@@ -416,14 +416,14 @@ echo '{
 2. **For Docs**: Read structure first, then specific sections:
    ```bash
    # Get structure to understand document
-   docs_manager.rb structure "DOC_ID"
+   docs_manager.py structure "DOC_ID"
 
    # Read only needed content range
    ```
 
 3. **For Drive**: Limit search results:
    ```bash
-   drive_manager.rb search --query "name contains 'Report'" --max-results 50
+   drive_manager.py search --query "name contains 'Report'" --max-results 50
    ```
 
 **Prevention**: Query only data you need, use pagination for large result sets.
@@ -438,7 +438,7 @@ Add debug logging to troubleshoot issues:
 
 ```bash
 # For google-drive
-DEBUG=1 drive_manager.rb list
+DEBUG=1 drive_manager.py list
 
 # For google-sheets and google-docs
 # Add debug flag to JSON input (if supported)
@@ -449,7 +449,7 @@ DEBUG=1 drive_manager.rb list
 Save JSON output for inspection:
 
 ```bash
-drive_manager.rb list > output.json
+drive_manager.py list > output.json
 cat output.json | jq .
 ```
 
@@ -462,7 +462,7 @@ Verify OAuth flow works:
 rm ~/.claude/.google/token.json
 
 # Run simple operation
-drive_manager.rb list
+drive_manager.py list
 
 # Should prompt for authorization
 # Complete OAuth flow in browser
@@ -475,7 +475,7 @@ ls -lh ~/.claude/.google/token.json
 Test file ID is accessible:
 
 ```bash
-drive_manager.rb get --file-id "FILE_ID"
+drive_manager.py get --file-id "FILE_ID"
 ```
 
 ---
@@ -484,13 +484,13 @@ drive_manager.rb get --file-id "FILE_ID"
 
 ### Check Logs
 
-Ruby gem errors may provide additional context:
+Python package resolution issues can be diagnosed via `uv`:
 ```bash
-# Check Ruby gem installation
-gem list | grep google-apis
+# Show the resolved package versions in the skill's venv
+uv pip list | grep google
 
-# Verify required gems installed
-gem install google-apis-drive_v3 google-apis-sheets_v4 google-apis-docs_v1 googleauth
+# Re-sync if things look wrong
+uv sync
 ```
 
 ### Verify API Enablement
@@ -517,5 +517,5 @@ Validate operations work outside skill scripts:
 
 - See `integration-patterns.md` for workflow examples
 - Check main SKILL.md files for operation syntax
-- Review Ruby script source for implementation details
+- Review `scripts/gdocs_skill/` Python source for implementation details
 - Consult Google Workspace API documentation for advanced usage

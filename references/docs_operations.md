@@ -1,6 +1,6 @@
 # Google Docs Operations Reference
 
-Complete reference for all Google Docs operations available in the docs_manager.rb script.
+Complete reference for all Google Docs operations available in the docs_manager.py script.
 
 ## Operation Overview
 
@@ -46,7 +46,7 @@ Complete reference for all Google Docs operations available in the docs_manager.
 
 **Example**:
 ```bash
-scripts/docs_manager.rb read 1abc-xyz-document-id-123
+scripts/docs_manager.py read 1abc-xyz-document-id-123
 ```
 
 ---
@@ -99,7 +99,7 @@ scripts/docs_manager.rb read 1abc-xyz-document-id-123
 
 **Example**:
 ```bash
-scripts/docs_manager.rb structure 1abc-xyz-document-id-123
+scripts/docs_manager.py structure 1abc-xyz-document-id-123
 ```
 
 ---
@@ -145,10 +145,10 @@ scripts/docs_manager.rb structure 1abc-xyz-document-id-123
 **Examples**:
 ```bash
 # Insert at beginning
-echo '{"document_id":"abc123","text":"# Title\n\n","index":1}' | scripts/docs_manager.rb insert
+echo '{"document_id":"abc123","text":"# Title\n\n","index":1}' | scripts/docs_manager.py insert
 
 # Insert at specific position
-echo '{"document_id":"abc123","text":"New paragraph\n\n","index":500}' | scripts/docs_manager.rb insert
+echo '{"document_id":"abc123","text":"New paragraph\n\n","index":500}' | scripts/docs_manager.py insert
 ```
 
 ---
@@ -195,13 +195,13 @@ echo '{"document_id":"abc123","text":"New paragraph\n\n","index":500}' | scripts
 echo '{
   "document_id": "abc123",
   "text": "\n\n## Next Steps\n\n- Review document\n- Get feedback"
-}' | scripts/docs_manager.rb append
+}' | scripts/docs_manager.py append
 
 # Append signature
 echo '{
   "document_id": "abc123",
   "text": "\n\n---\n\nPrepared by: [Name]\nDate: [Date]"
-}' | scripts/docs_manager.rb append
+}' | scripts/docs_manager.py append
 ```
 
 ---
@@ -260,7 +260,7 @@ echo '{
   "find": "q3 2024",
   "replace": "Q4 2024",
   "match_case": false
-}' | scripts/docs_manager.rb replace
+}' | scripts/docs_manager.py replace
 
 # Case-sensitive replacement
 echo '{
@@ -268,14 +268,14 @@ echo '{
   "find": "DRAFT",
   "replace": "FINAL",
   "match_case": true
-}' | scripts/docs_manager.rb replace
+}' | scripts/docs_manager.py replace
 
 # Delete text (replace with empty)
 echo '{
   "document_id": "abc123",
   "find": "[REMOVE THIS]",
   "replace": ""
-}' | scripts/docs_manager.rb replace
+}' | scripts/docs_manager.py replace
 ```
 
 ---
@@ -331,7 +331,7 @@ echo '{
   "start_index": 1,
   "end_index": 20,
   "bold": true
-}' | scripts/docs_manager.rb format
+}' | scripts/docs_manager.py format
 
 # Bold and italic
 echo '{
@@ -340,7 +340,7 @@ echo '{
   "end_index": 150,
   "bold": true,
   "italic": true
-}' | scripts/docs_manager.rb format
+}' | scripts/docs_manager.py format
 
 # Underline only
 echo '{
@@ -348,7 +348,7 @@ echo '{
   "start_index": 200,
   "end_index": 225,
   "underline": true
-}' | scripts/docs_manager.rb format
+}' | scripts/docs_manager.py format
 ```
 
 ---
@@ -393,7 +393,7 @@ echo '{
 echo '{
   "document_id": "abc123",
   "index": 1000
-}' | scripts/docs_manager.rb page-break
+}' | scripts/docs_manager.py page-break
 ```
 
 ---
@@ -438,13 +438,13 @@ echo '{
 # Empty document
 echo '{
   "title": "Meeting Notes"
-}' | scripts/docs_manager.rb create
+}' | scripts/docs_manager.py create
 
 # Document with content
 echo '{
   "title": "Project Proposal",
   "content": "# Project Proposal\n\n## Overview\n\nThis proposal outlines..."
-}' | scripts/docs_manager.rb create
+}' | scripts/docs_manager.py create
 ```
 
 ---
@@ -492,14 +492,14 @@ echo '{
   "document_id": "abc123",
   "start_index": 500,
   "end_index": 600
-}' | scripts/docs_manager.rb delete
+}' | scripts/docs_manager.py delete
 
 # Clear most of document (read first to get end index)
 echo '{
   "document_id": "abc123",
   "start_index": 1,
   "end_index": 5000
-}' | scripts/docs_manager.rb delete
+}' | scripts/docs_manager.py delete
 ```
 
 ---

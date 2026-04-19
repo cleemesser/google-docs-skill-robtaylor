@@ -9,7 +9,7 @@ Complete workflows combining google-drive, google-sheets, and google-docs skills
 **Workflow**:
 ```bash
 # Step 1: Find the source spreadsheet
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "Sales Q4 2024" \
   --mime-type "application/vnd.google-apps.spreadsheet"
 
@@ -24,16 +24,16 @@ echo '{
 # Step 4: Create a new document for the report
 echo '{
   "title": "Q4 2024 Sales Analysis Report"
-}' | ~/.claude/skills/google-docs/scripts/docs_manager.rb create
+}' | ~/.claude/skills/google-docs/scripts/docs_manager.py create
 
 # Step 5: Write report sections
 echo '{
   "document_id": "DOC_ID_FROM_STEP4",
   "text": "# Q4 2024 Sales Analysis\n\n## Executive Summary\n\n[Claude-generated insights]"
-}' | ~/.claude/skills/google-docs/scripts/docs_manager.rb append
+}' | ~/.claude/skills/google-docs/scripts/docs_manager.py append
 
 # Step 6: Share the report
-~/.claude/skills/google-drive/scripts/drive_manager.rb share \
+~/.claude/skills/google-drive/scripts/drive_manager.py share \
   --file-id "DOC_ID_FROM_STEP4" \
   --email "stakeholder@company.com" \
   --role "reader"
@@ -50,16 +50,16 @@ echo '{
 **Workflow**:
 ```bash
 # Step 1: Create project folder
-~/.claude/skills/google-drive/scripts/drive_manager.rb create-folder \
+~/.claude/skills/google-drive/scripts/drive_manager.py create-folder \
   --name "Project Alpha" \
   --parent-folder-id "root"
 
 # Step 2: Create subfolders
-~/.claude/skills/google-drive/scripts/drive_manager.rb create-folder \
+~/.claude/skills/google-drive/scripts/drive_manager.py create-folder \
   --name "Documents" \
   --parent-folder-id "PROJECT_FOLDER_ID_FROM_STEP1"
 
-~/.claude/skills/google-drive/scripts/drive_manager.rb create-folder \
+~/.claude/skills/google-drive/scripts/drive_manager.py create-folder \
   --name "Spreadsheets" \
   --parent-folder-id "PROJECT_FOLDER_ID_FROM_STEP1"
 
@@ -67,13 +67,13 @@ echo '{
 echo '{
   "title": "Project Alpha - Requirements",
   "parent_folder_id": "DOCUMENTS_FOLDER_ID"
-}' | ~/.claude/skills/google-docs/scripts/docs_manager.rb create
+}' | ~/.claude/skills/google-docs/scripts/docs_manager.py create
 
 # Step 4: Create tracking spreadsheet
 # (Use google-sheets create operation with parent_folder_id)
 
 # Step 5: Share entire project folder
-~/.claude/skills/google-drive/scripts/drive_manager.rb share \
+~/.claude/skills/google-drive/scripts/drive_manager.py share \
   --file-id "PROJECT_FOLDER_ID_FROM_STEP1" \
   --email "team@company.com" \
   --role "writer"
@@ -90,7 +90,7 @@ echo '{
 **Workflow**:
 ```bash
 # Step 1: Find all matching documents
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "Status Report" \
   --mime-type "application/vnd.google-apps.document"
 
@@ -99,14 +99,14 @@ echo '{
 
 for DOC_ID in $(jq -r '.files[].id' search_results.json); do
   # Read current content
-  CONTENT=$(~/.claude/skills/google-docs/scripts/docs_manager.rb read "$DOC_ID")
+  CONTENT=$(~/.claude/skills/google-docs/scripts/docs_manager.py read "$DOC_ID")
 
   # Update with new information
   echo "{
     \"document_id\": \"$DOC_ID\",
     \"find_text\": \"Status: Pending\",
     \"replace_text\": \"Status: Completed\"
-  }" | ~/.claude/skills/google-docs/scripts/docs_manager.rb replace
+  }" | ~/.claude/skills/google-docs/scripts/docs_manager.py replace
 done
 ```
 
@@ -121,7 +121,7 @@ done
 **Workflow**:
 ```bash
 # Step 1: Find all department spreadsheets
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "Department Budget 2024"
 
 # Step 2: Create master consolidation sheet
@@ -156,33 +156,33 @@ echo '{
 **Workflow**:
 ```bash
 # Step 1: Find template document
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "Invoice Template"
 
 # Step 2: Copy template for new document
-~/.claude/skills/google-drive/scripts/drive_manager.rb copy \
+~/.claude/skills/google-drive/scripts/drive_manager.py copy \
   --file-id "TEMPLATE_ID" \
   --name "Invoice #1234 - Acme Corp"
 
 # Step 3: Read template content
 NEW_DOC_ID=$(jq -r '.id' copy_result.json)
-~/.claude/skills/google-docs/scripts/docs_manager.rb read "$NEW_DOC_ID"
+~/.claude/skills/google-docs/scripts/docs_manager.py read "$NEW_DOC_ID"
 
 # Step 4: Replace placeholders with actual data
 echo "{
   \"document_id\": \"$NEW_DOC_ID\",
   \"find_text\": \"{{CLIENT_NAME}}\",
   \"replace_text\": \"Acme Corporation\"
-}" | ~/.claude/skills/google-docs/scripts/docs_manager.rb replace
+}" | ~/.claude/skills/google-docs/scripts/docs_manager.py replace
 
 echo "{
   \"document_id\": \"$NEW_DOC_ID\",
   \"find_text\": \"{{INVOICE_NUMBER}}\",
   \"replace_text\": \"#1234\"
-}" | ~/.claude/skills/google-docs/scripts/docs_manager.rb replace
+}" | ~/.claude/skills/google-docs/scripts/docs_manager.py replace
 
 # Step 5: Move to appropriate folder
-~/.claude/skills/google-drive/scripts/drive_manager.rb move \
+~/.claude/skills/google-drive/scripts/drive_manager.py move \
   --file-id "$NEW_DOC_ID" \
   --destination-folder-id "INVOICES_FOLDER_ID"
 ```
@@ -201,13 +201,13 @@ echo "{
 TRACKING_SHEET_ID="your_tracking_sheet_id"
 
 # Step 2: Search for data source documents
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "Survey Results 2024"
 
 # Step 3: Extract data from each source
 for DOC_ID in $(jq -r '.files[].id' search_results.json); do
   # Read document
-  CONTENT=$(~/.claude/skills/google-docs/scripts/docs_manager.rb read "$DOC_ID")
+  CONTENT=$(~/.claude/skills/google-docs/scripts/docs_manager.py read "$DOC_ID")
 
   # Parse content with Claude to extract structured data
   # (Claude processes CONTENT and formats for spreadsheet)
@@ -245,11 +245,11 @@ Always use the ID (long alphanumeric string) from search/list results, not the f
 **Solution**:
 ```bash
 # Check current permissions
-~/.claude/skills/google-drive/scripts/drive_manager.rb list-permissions \
+~/.claude/skills/google-drive/scripts/drive_manager.py list-permissions \
   --file-id "FILE_ID"
 
 # Add yourself as writer if needed
-~/.claude/skills/google-drive/scripts/drive_manager.rb share \
+~/.claude/skills/google-drive/scripts/drive_manager.py share \
   --file-id "FILE_ID" \
   --email "your-email@gmail.com" \
   --role "writer"
@@ -262,11 +262,11 @@ Always use the ID (long alphanumeric string) from search/list results, not the f
 **Solution**: Use more specific query with operators:
 ```bash
 # Combine multiple criteria
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "name contains 'Budget' and mimeType='application/vnd.google-apps.spreadsheet'"
 
 # Search in specific folder
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "'FOLDER_ID' in parents"
 ```
 
@@ -289,7 +289,7 @@ Always use the ID (long alphanumeric string) from search/list results, not the f
 
 Use google-drive with mimeType filter:
 ```bash
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "mimeType='application/vnd.google-apps.spreadsheet'" \
   --max-results 50
 ```
@@ -298,7 +298,7 @@ Use google-drive with mimeType filter:
 
 Use google-drive with mimeType filter:
 ```bash
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "mimeType='application/vnd.google-apps.document'" \
   --max-results 50
 ```
@@ -306,7 +306,7 @@ Use google-drive with mimeType filter:
 ### Finding Recently Modified Files
 
 ```bash
-~/.claude/skills/google-drive/scripts/drive_manager.rb search \
+~/.claude/skills/google-drive/scripts/drive_manager.py search \
   --query "modifiedTime > '2024-01-01T00:00:00'"
 ```
 

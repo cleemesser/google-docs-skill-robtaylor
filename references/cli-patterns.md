@@ -19,7 +19,7 @@ Each Google skill uses the CLI pattern that best matches its typical use case co
 ### Design Choice
 
 ```bash
-drive_manager.rb [command] [--flags]
+drive_manager.py [command] [--flags]
 ```
 
 **Why This Pattern?**
@@ -33,16 +33,16 @@ drive_manager.rb [command] [--flags]
 
 ```bash
 # List files - no complex parameters needed
-drive_manager.rb list
+drive_manager.py list
 
 # Search with simple query
-drive_manager.rb search --query "name contains 'Report'"
+drive_manager.py search --query "name contains 'Report'"
 
 # Download file - straightforward parameters
-drive_manager.rb download --file-id "abc123xyz" --save-path "./download"
+drive_manager.py download --file-id "abc123xyz" --save-path "./download"
 
 # Share file - few clear parameters
-drive_manager.rb share --file-id "abc123xyz" --email "user@example.com" --role "reader"
+drive_manager.py share --file-id "abc123xyz" --email "user@example.com" --role "reader"
 ```
 
 ### When Flags Work Well
@@ -58,7 +58,7 @@ For complex operations, google-drive can accept JSON stdin (future enhancement):
 
 ```bash
 # Current: Simple flag-based
-drive_manager.rb share --file-id "ID" --email "user@example.com" --role "writer"
+drive_manager.py share --file-id "ID" --email "user@example.com" --role "writer"
 
 # Future: JSON for batch operations
 echo '{
@@ -67,7 +67,7 @@ echo '{
     {"email": "user1@example.com", "role": "writer"},
     {"email": "user2@example.com", "role": "reader"}
   ]
-}' | drive_manager.rb share --json
+}' | drive_manager.py share --json
 ```
 
 ---
@@ -151,10 +151,10 @@ echo '{...}' | sheets_manager.rb batch_update  # No flag equivalent
 
 ```bash
 # Simple operations: Direct arguments
-docs_manager.rb read <document_id>
+docs_manager.py read <document_id>
 
 # Complex operations: JSON via stdin
-echo '{...}' | docs_manager.rb insert
+echo '{...}' | docs_manager.py insert
 ```
 
 **Why This Pattern?**
@@ -169,10 +169,10 @@ echo '{...}' | docs_manager.rb insert
 **Simple Operations** (direct arguments):
 ```bash
 # Read document - just needs ID
-docs_manager.rb read "abc123xyz"
+docs_manager.py read "abc123xyz"
 
 # Get structure - one parameter
-docs_manager.rb structure "abc123xyz"
+docs_manager.py structure "abc123xyz"
 ```
 
 **Complex Operations** (JSON stdin):
@@ -186,7 +186,7 @@ echo '{
     "bold": true,
     "fontSize": 14
   }
-}' | docs_manager.rb insert
+}' | docs_manager.py insert
 
 # Replace with formatting
 echo '{
@@ -194,7 +194,7 @@ echo '{
   "find_text": "old text",
   "replace_text": "new text",
   "format": {"bold": true}
-}' | docs_manager.rb replace
+}' | docs_manager.py replace
 ```
 
 ### When Mixed Pattern Works Well
@@ -212,7 +212,7 @@ echo '{
 
 **google-drive** (simple flag):
 ```bash
-drive_manager.rb get --file-id "abc123xyz"
+drive_manager.py get --file-id "abc123xyz"
 ```
 **Why**: File metadata is flat structure, few parameters.
 
@@ -224,7 +224,7 @@ echo '{"spreadsheet_id":"ID","range":"Sheet1!A1:C10"}' | sheets_manager.rb read
 
 **google-docs** (direct arg):
 ```bash
-docs_manager.rb read "abc123xyz"
+docs_manager.py read "abc123xyz"
 ```
 **Why**: Only needs document ID, simplest possible interface.
 
@@ -232,7 +232,7 @@ docs_manager.rb read "abc123xyz"
 
 **google-drive** (flags):
 ```bash
-drive_manager.rb update --file-id "ID" --name "New Name" --description "Updated"
+drive_manager.py update --file-id "ID" --name "New Name" --description "Updated"
 ```
 **Why**: Few flat parameters, clear command-line representation.
 
@@ -253,7 +253,7 @@ echo '{
   "index": 10,
   "text": "Inserted text",
   "format": {"bold": true, "italic": true}
-}' | docs_manager.rb insert
+}' | docs_manager.py insert
 ```
 **Why**: Multiple nested parameters (position, text, formatting).
 
@@ -265,21 +265,21 @@ echo '{
 
 ✅ **DO**: Use flags for simple operations
 ```bash
-drive_manager.rb search --query "type:document"
-drive_manager.rb download --file-id "ID" --save-path "./file"
+drive_manager.py search --query "type:document"
+drive_manager.py download --file-id "ID" --save-path "./file"
 ```
 
 ❌ **DON'T**: Try to force JSON when flags are sufficient
 ```bash
 # Unnecessary complexity
-echo '{"file_id":"ID"}' | drive_manager.rb get  # No benefit over flags
+echo '{"file_id":"ID"}' | drive_manager.py get  # No benefit over flags
 ```
 
 💡 **TIP**: Use shell variables for repeated file IDs
 ```bash
 FILE_ID="abc123xyz"
-drive_manager.rb get --file-id "$FILE_ID"
-drive_manager.rb download --file-id "$FILE_ID" --save-path "./download"
+drive_manager.py get --file-id "$FILE_ID"
+drive_manager.py download --file-id "$FILE_ID" --save-path "./download"
 ```
 
 ### google-sheets Best Practices
@@ -318,8 +318,8 @@ EOF
 
 ✅ **DO**: Use direct arguments for simple reads
 ```bash
-docs_manager.rb read "document_id"
-docs_manager.rb structure "document_id"
+docs_manager.py read "document_id"
+docs_manager.py structure "document_id"
 ```
 
 ✅ **DO**: Use JSON for complex operations
@@ -328,20 +328,20 @@ echo '{
   "document_id": "ID",
   "text": "New content",
   "format": {"bold": true}
-}' | docs_manager.rb append
+}' | docs_manager.py append
 ```
 
 💡 **TIP**: Combine simple and complex operations
 ```bash
 # Get structure first (simple)
-STRUCTURE=$(docs_manager.rb structure "ID")
+STRUCTURE=$(docs_manager.py structure "ID")
 
 # Then perform complex formatted insertion (JSON)
 echo "{
   \"document_id\": \"ID\",
   \"index\": 1,
   \"text\": \"Formatted text\"
-}" | docs_manager.rb insert
+}" | docs_manager.py insert
 ```
 
 ---
@@ -381,7 +381,7 @@ echo "{
 
 ```bash
 # Current flag-based for simple sharing
-drive_manager.rb share --file-id "ID" --email "user@example.com"
+drive_manager.py share --file-id "ID" --email "user@example.com"
 
 # Future JSON for batch permissions
 echo '{
@@ -391,7 +391,7 @@ echo '{
     {"email": "user2@example.com", "role": "reader"},
     {"type": "domain", "domain": "company.com", "role": "reader"}
   ]
-}' | drive_manager.rb share --json
+}' | drive_manager.py share --json
 ```
 
 ### google-sheets: Add Simple Flag Shortcuts
