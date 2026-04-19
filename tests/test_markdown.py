@@ -11,3 +11,10 @@ def test_empty_input_returns_empty_parsed():
     assert result.text == ""
     assert result.formats == []
     assert result.tables == []
+
+
+def test_plain_paragraph():
+    result = parse("Hello world")
+    assert result.text == "Hello world\n"
+    assert result.formats == []
+    assert result.tables == []

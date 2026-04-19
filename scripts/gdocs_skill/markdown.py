@@ -45,4 +45,56 @@ def parse(markdown: str, base_index: int = 1) -> Parsed:
     result = Parsed()
     if not markdown:
         return result
-    raise NotImplementedError
+
+    lines = markdown.splitlines()
+    current_index = base_index
+    i = 0
+    while i < len(lines):
+        line = lines[i].rstrip()
+        # Fallthrough: plain paragraph with inline formatting
+        para_text, inline_formats = _process_inline(line, current_index)
+        result.formats.extend(inline_formats)
+        block = para_text + "\n"
+        result.text += block
+        current_index += len(block)
+        i += 1
+    return result
+
+
+def _process_inline(line: str, base_index: int) -> tuple[str, list[Format]]:
+    """Parse **bold**, *italic*, `code` inline. Returns (flat_text, formats)."""
+    out: list[str] = []
+    formats: list[Format] = []
+    pos = 0
+    n = len(line)
+    while pos < n:
+        if line[pos : pos + 2] == "**":
+            end = line.find("**", pos + 2)
+            if end != -1:
+                span = line[pos + 2 : end]
+                start_idx = base_index + len("".join(out))
+                out.append(span)
+                formats.append(Format("bold", start_idx, start_idx + len(span)))
+                pos = end + 2
+                continue
+        if line[pos] == "*" and line[pos : pos + 2] != "**":
+            end = line.find("*", pos + 1)
+            if end != -1 and line[end : end + 2] != "**":
+                span = line[pos + 1 : end]
+                start_idx = base_index + len("".join(out))
+                out.append(span)
+                formats.append(Format("italic", start_idx, start_idx + len(span)))
+                pos = end + 1
+                continue
+        if line[pos] == "`":
+            end = line.find("`", pos + 1)
+            if end != -1:
+                span = line[pos + 1 : end]
+                start_idx = base_index + len("".join(out))
+                out.append(span)
+                formats.append(Format("code", start_idx, start_idx + len(span)))
+                pos = end + 1
+                continue
+        out.append(line[pos])
+        pos += 1
+    return "".join(out), formats
